@@ -4,7 +4,7 @@ import Link from "next/link";
 import Account from "../components/Account";
 import NativeCurrencyBalance from "../components/NativeCurrencyBalance";
 import TokenBalance from "../components/TokenBalance";
-import USLibrary from "../components/USLibrary";
+import USLibrary from "../components/TokenBridge";
 import { ALBT_TOKEN_ADDRESS, US_ELECTION_ADDRESS } from "../constants";
 import useEagerConnect from "../hooks/useEagerConnect";
 
