@@ -38,6 +38,14 @@ function Home() {
   const [tokenAdditionStatus, setTokenAdditionStatus] = useState<number>(0);
   const [tokenAdditionMessage, setTokenAdditionMessage] = useState<string>('');
 
+
+  const [allowanceContractAddress, setAllowanceContractAddress] = useState<number>(0);
+  const [allowanceAmount, setAllowanceAmount] = useState<string>('');
+
+  const [warningMessage, setWarningMessage] = useState<string>('');
+  const [transactionPending, setTransactionPending] = useState<number>(0);
+  const [txHash, setTxHash] = useState<string>('Unknown');
+
   const setInformUser = (newStatus, newStatusMessage) => {
     setTokenAdditionStatus(newStatus);
     setTokenAdditionMessage(newStatusMessage);
@@ -49,34 +57,32 @@ function Home() {
 
   const addNewTokenAddress = async () => {
 
-    if (!newTokenAddress || newTokenAddress.trim().length == 0)
-    {
+    if (!newTokenAddress || newTokenAddress.trim().length == 0) {
       setInformUser(0, "Please enter a token address.");
       return;
     }
 
     const stringExists = searchStringInArray(newTokenAddress, tokensList);
-    if (stringExists != -1)
-    {
+    if (stringExists != -1) {
       setInformUser(0, "Token address already exists.");
       return;
     }
 
     setInformUser(1, "Adding contract address. Please wait.");
 
-    if (!isAddress(newTokenAddress)){
+    if (!isAddress(newTokenAddress)) {
       setInformUser(0, "Sorry, this is not a valid contract address.");
       return;
     }
 
     const contractObj = getTokenContract(newTokenAddress);
-    if(contractObj == null){
+    if (contractObj == null) {
       setInformUser(0, "Contract with token address doesn't seem to exist.");
       return;
     }
 
     const tokenInfo = await getTokenInfo(contractObj);
-    if(tokenInfo == null){
+    if (tokenInfo == null) {
       setInformUser(0, "Sorry, we couldn't get ERC20 Token info from the contract. Are you sure it's a valid ERC20 token?");
       return;
     }
@@ -109,11 +115,11 @@ function Home() {
     let tokenSymbol;
     let tokenUserBalance;
     let tokenUserAllowance;
-    try{
+    try {
       tokenName = await contractObject.name();
       tokenSymbol = await contractObject.symbol();
-      tokenUserBalance = await contractObject.balanceOf(account);  
-      tokenUserAllowance = await contractObject.allowance(account, TOKEN_BRIDGE_ADDRESS);  
+      tokenUserBalance = await contractObject.balanceOf(account);
+      tokenUserAllowance = await contractObject.allowance(account, TOKEN_BRIDGE_ADDRESS);
     }
     catch (error) {
       console.log(error);
@@ -121,13 +127,13 @@ function Home() {
       return null;
     }
 
-    return {tokenName: tokenName, tokenSymbol: tokenSymbol, tokenUserBalance: tokenUserBalance, tokenUserAllowance: tokenUserAllowance};
+    return { tokenName: tokenName, tokenSymbol: tokenSymbol, tokenUserBalance: tokenUserBalance, tokenUserAllowance: tokenUserAllowance };
   }
 
   const getTokenBalance = async (contractObject) => {
     let tokenUserBalance;
-    try{
-      tokenUserBalance = await contractObject.balanceOf(account);  
+    try {
+      tokenUserBalance = await contractObject.balanceOf(account);
     }
     catch (error) {
       console.log(error);
@@ -138,10 +144,10 @@ function Home() {
     return tokenUserBalance;
   }
 
-  const getTokenAllowance = async (contractObject, ) => {
+  const getTokenAllowance = async (contractObject,) => {
     let tokenUserAllowance;
-    try{
-      tokenUserAllowance = await contractObject.allowance(account, TOKEN_BRIDGE_ADDRESS);  
+    try {
+      tokenUserAllowance = await contractObject.allowance(account, TOKEN_BRIDGE_ADDRESS);
     }
     catch (error) {
       console.log(error);
@@ -200,13 +206,13 @@ function Home() {
     const tokenAllowancesStorageVal = localStorage.getItem('myTokenAllowances');
 
     // If they are all null, we haven't saved anything, so we just move on.
-    if (tokenNamesStorageVal == null && tokenNamesStorageVal == null && tokenSymbolsStorageVal == null && tokenBalancesStorageVal == null && tokenAllowancesStorageVal == null){
+    if (tokenNamesStorageVal == null && tokenNamesStorageVal == null && tokenSymbolsStorageVal == null && tokenBalancesStorageVal == null && tokenAllowancesStorageVal == null) {
       setInformUser(0, "");
       return;
     }
 
     // Otherwise there was an error, so let's clear the previous results and start over
-    if (tokenNamesStorageVal == null || tokenNamesStorageVal == null || tokenSymbolsStorageVal == null || tokenBalancesStorageVal == null || tokenAllowancesStorageVal == null){
+    if (tokenNamesStorageVal == null || tokenNamesStorageVal == null || tokenSymbolsStorageVal == null || tokenBalancesStorageVal == null || tokenAllowancesStorageVal == null) {
       setInformUser(0, "Something went wrong. Could not fetch previous tokens.");
       localStorage.clear();
       return;
@@ -228,7 +234,7 @@ function Home() {
     // Figure out how to do it
     for (var j = 0; j < previousTokenAddressList.length; j++) {
       const newBalance = await fetchNewTokenBalance(previousTokenAddressList[j]);
-      if(newBalance != null)
+      if (newBalance != null)
         previousTokenBalancesList[j] = newBalance.toString();
     }
 
@@ -241,7 +247,7 @@ function Home() {
     // Figure out how to do it
     for (var j = 0; j < previousTokenAllowancesList.length; j++) {
       const newAllowance = await fetchNewTokenAllowance(previousTokenAddressList[j]);
-      if(newAllowance != null)
+      if (newAllowance != null)
         previousTokenAllowancesList[j] = newAllowance.toString();
     }
 
@@ -250,13 +256,13 @@ function Home() {
     setInformUser(0, "");
   }
 
-  const updateTokenBalances = async() => {
+  const updateTokenBalances = async () => {
     setInformUser(1, "Fetching new token balances.");
     const newTokenBalances = JSON.parse(JSON.stringify(tokenBalancesList)); // this will copy everything from original 
 
     for (var j = 0; j < tokensList.length; j++) {
       const newBalance = await fetchNewTokenBalance(tokensList[j]);
-      if(newBalance != null)
+      if (newBalance != null)
         newTokenBalances[j] = newBalance.toString();
     }
 
@@ -267,13 +273,13 @@ function Home() {
 
   const fetchNewTokenBalance = async (address) => {
     const contractObj = getTokenContract(address);
-    if(contractObj == null){
+    if (contractObj == null) {
       console.log("Contract with token address " + address + " doesn't seem to exist.");
       return null;
     }
 
     const tokenBalance = await getTokenBalance(contractObj);
-    if(tokenBalance == null){
+    if (tokenBalance == null) {
       console.log("We couldn't get ERC20 token balance");
       return null;
     }
@@ -282,13 +288,13 @@ function Home() {
     return tokenBalance;
   };
 
-  const updateTokenAllowances = async() => {
+  const updateTokenAllowances = async () => {
     setInformUser(1, "Fetching new token allowances.");
     const newTokenAllowances = JSON.parse(JSON.stringify(tokenAllowancesList)); // this will copy everything from original 
 
     for (var j = 0; j < tokensList.length; j++) {
       const newAllowance = await fetchNewTokenAllowance(tokensList[j]);
-      if(newAllowance != null)
+      if (newAllowance != null)
         newTokenAllowances[j] = newAllowance.toString();
     }
 
@@ -299,13 +305,13 @@ function Home() {
 
   const fetchNewTokenAllowance = async (address) => {
     const contractObj = getTokenContract(address);
-    if(contractObj == null){
+    if (contractObj == null) {
       console.log("Contract with token address " + address + " doesn't seem to exist.");
       return null;
     }
 
     const tokenAllowance = await getTokenAllowance(contractObj);
-    if(tokenAllowance == null){
+    if (tokenAllowance == null) {
       console.log("We couldn't get ERC20 token balance");
       return null;
     }
@@ -313,6 +319,49 @@ function Home() {
     // console.log("Token Balance: " + tokenBalance);
     return tokenAllowance;
   };
+
+  const allowanceContractAddressChanged = (input) => {
+    setAllowanceContractAddress(input.target.value)
+  }
+
+  const allowanceAmountChanged = (input) => {
+    setAllowanceAmount(input.target.value)
+  }
+
+  const changeAllowance = async () => {
+    const contractObj = getTokenContract(allowanceContractAddress);
+    if (contractObj == null) {
+      console.log("Contract with token address " + allowanceContractAddress + " doesn't seem to exist.");
+      return null;
+    }
+
+
+    try {
+      const tx = await contractObj.approve(TOKEN_BRIDGE_ADDRESS, allowanceAmount);
+
+      setTxHash(tx.hash);
+      setTransactionPending(1);
+      setWarningMessage("Setting new allowance amount for Token Bridge Contract.");
+      await tx.wait();
+      setWarningMessage("New allowance amount for Token Bridge Contract was successfully set.");
+      setTransactionPending(2);
+
+    }
+    catch (error) {
+      console.log(error)
+      console.error(error)
+      setWarningMessage("Sorry, we couldn't do that. An error occured");
+    }
+
+    const tokenBalance = await getTokenBalance(contractObj);
+    if (tokenBalance == null) {
+      console.log("We couldn't get ERC20 token balance");
+      return null;
+    }
+
+    // console.log("Token Balance: " + tokenBalance);
+    return tokenBalance;
+  }
 
   useEffect(() => {
     getPreviousTokensList();
@@ -347,26 +396,48 @@ function Home() {
           <section>
             <NativeCurrencyBalance />
             <form onSubmit={(e) => { e.preventDefault(); return false; }}>
-              <h3>Add More ERC20 Tokens</h3>
+              <h2>Add More ERC20 Tokens</h2>
               <label>
                 Tokens Addess:
-                <input onChange={tokenAddressInput} value={newTokenAddress} type="text" name="state" disabled={tokenAdditionStatus?true:false} />
+                <input onChange={tokenAddressInput} value={newTokenAddress} type="text" name="state" disabled={tokenAdditionStatus ? true : false} />
               </label>
-              <button onClick={addNewTokenAddress} disabled={tokenAdditionStatus?true:false}>Add Token</button>
+              <button onClick={addNewTokenAddress} disabled={tokenAdditionStatus ? true : false}>Add Token</button>
             </form>
 
-            <h3>Tokens List</h3>
+            <h2>Tokens List</h2>
             <li>
               {tokensList.map((element, index) => (
                 <ul key={index}> {element} - {tokenNamesList[index]} - {tokenSymbolsList[index]} - Balance: {tokenBalancesList[index]} - Allowance: {tokenAllowancesList[index]}</ul>
               ))}
             </li>
-            <button onClick={updateTokenBalances} disabled={tokenAdditionStatus?true:false}>Update Balances</button>
-            <button onClick={updateTokenAllowances} disabled={tokenAdditionStatus?true:false}>Update Allowances</button>
+            <button onClick={updateTokenBalances} disabled={tokenAdditionStatus ? true : false}>Update Balances</button>
+            <button onClick={updateTokenAllowances} disabled={tokenAdditionStatus ? true : false}>Update Allowances</button>
             <p>{tokenAdditionMessage}</p>
-            {tokenAdditionStatus?<div className="lds-dual-ring"></div>:null}
+            {tokenAdditionStatus ? <div className="lds-dual-ring"></div> : null}
 
-
+            <h2>Set allowance</h2>
+            <label>
+              From:
+              <input onChange={allowanceContractAddressChanged} value={allowanceContractAddress} type="text" name="allowance_contract_address" />
+              &nbsp;Amount:
+              <input onChange={allowanceAmountChanged} value={allowanceAmount} type="number" name="allowance_amount" />
+            </label>
+            <div className="button-wrapper">
+              <button onClick={changeAllowance}>Set Allowance</button>
+            </div>
+            <p>{warningMessage}</p>
+            <div className="loading-component" hidden={transactionPending == 0}>
+              <h3>Submitting Results</h3>
+              <p>Your transaction hash is <a href={"https://rinkeby.etherscan.io/tx/" + txHash} id="txHashSpan" target="_blank">{txHash}</a>.</p>
+              <div hidden={transactionPending != 1}>
+                <p>Results submitted. Please wait while the blockchain validates and approves your transaction.</p>
+                <p>This can take a few minutes.</p>
+                <div className="lds-dual-ring"></div>
+              </div>
+              <div hidden={transactionPending != 2}>
+                <p>Results successfuly submitted.</p>
+              </div>
+            </div>
             {/* <TokenBalance tokenAddress={ALBT_TOKEN_ADDRESS} symbol="ALBT" /> */}
             <TokenBridgeComponent contractAddress={TOKEN_BRIDGE_ADDRESS} />
           </section>
