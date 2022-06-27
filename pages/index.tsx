@@ -417,7 +417,7 @@ function Home() {
 
             <h2>Set allowance</h2>
             <label>
-              From:
+              Token Address:
               <input onChange={allowanceContractAddressChanged} value={allowanceContractAddress} type="text" name="allowance_contract_address" />
               &nbsp;Amount:
               <input onChange={allowanceAmountChanged} value={allowanceAmount} type="number" name="allowance_amount" />
