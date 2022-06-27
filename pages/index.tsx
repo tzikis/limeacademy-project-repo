@@ -5,7 +5,7 @@ import Account from "../components/Account";
 import NativeCurrencyBalance from "../components/NativeCurrencyBalance";
 import TokenBalance from "../components/TokenBalance";
 import TokenBridgeComponent from "../components/TokenBridge";
-import { ALBT_TOKEN_ADDRESS, US_ELECTION_ADDRESS } from "../constants";
+import { TOKEN_BRIDGE_ADDRESS } from "../constants";
 import useEagerConnect from "../hooks/useEagerConnect";
 import { useEffect, useState } from "react";
 
@@ -31,6 +31,7 @@ function Home() {
   const [tokenNamesList, setTokenNamesList] = useState<String[]>([]);
   const [tokenSymbolsList, setTokenSymbolsList] = useState<String[]>([]);
   const [tokenBalancesList, setTokenBalancesList] = useState<String[]>([]);
+  const [tokenAllowancesList, setTokenAllowancesList] = useState<String[]>([]);
 
   const [newTokenAddress, setNewTokenAddress] = useState<string>('');
 
@@ -80,9 +81,9 @@ function Home() {
       return;
     }
 
-    console.log("Token " + tokenInfo.tokenName + " - " + tokenInfo.tokenSymbol + " found. Account Balance: " + tokenInfo.tokenUserBalance);
+    console.log("Token " + tokenInfo.tokenName + " - " + tokenInfo.tokenSymbol + " found. Account Balance: " + tokenInfo.tokenUserBalance + " Allowance: " + tokenInfo.tokenUserAllowance);
 
-    updateTokensLists(newTokenAddress, tokenInfo.tokenName, tokenInfo.tokenSymbol, tokenInfo.tokenUserBalance);
+    updateTokensLists(newTokenAddress, tokenInfo.tokenName, tokenInfo.tokenSymbol, tokenInfo.tokenUserBalance, tokenInfo.tokenUserAllowance);
     setInformUser(0, "");
   };
 
@@ -107,10 +108,12 @@ function Home() {
     let tokenName;
     let tokenSymbol;
     let tokenUserBalance;
+    let tokenUserAllowance;
     try{
       tokenName = await contractObject.name();
       tokenSymbol = await contractObject.symbol();
       tokenUserBalance = await contractObject.balanceOf(account);  
+      tokenUserAllowance = await contractObject.allowance(account, TOKEN_BRIDGE_ADDRESS);  
     }
     catch (error) {
       console.log(error);
@@ -118,7 +121,7 @@ function Home() {
       return null;
     }
 
-    return {tokenName: tokenName, tokenSymbol: tokenSymbol, tokenUserBalance: tokenUserBalance};
+    return {tokenName: tokenName, tokenSymbol: tokenSymbol, tokenUserBalance: tokenUserBalance, tokenUserAllowance: tokenUserAllowance};
   }
 
   const getTokenBalance = async (contractObject) => {
@@ -135,6 +138,20 @@ function Home() {
     return tokenUserBalance;
   }
 
+  const getTokenAllowance = async (contractObject, ) => {
+    let tokenUserAllowance;
+    try{
+      tokenUserAllowance = await contractObject.allowance(account, TOKEN_BRIDGE_ADDRESS);  
+    }
+    catch (error) {
+      console.log(error);
+      console.error(error);
+      return null;
+    }
+
+    return tokenUserAllowance;
+  }
+
   const searchStringInArray = (str, strArray) => {
     for (var j = 0; j < strArray.length; j++) {
       if (strArray[j].match(str)) return j;
@@ -142,7 +159,7 @@ function Home() {
     return -1;
   }
 
-  const updateTokensLists = (newTokenAddress, newTokenName, newTokenSymbol, newTokenBalance) => {
+  const updateTokensLists = (newTokenAddress, newTokenName, newTokenSymbol, newTokenBalance, newTokenAllowance) => {
 
     // const newTokenAddressList = tokensList;
     const newTokenAddressList = JSON.parse(JSON.stringify(tokensList)); // this will copy everything from original 
@@ -157,15 +174,20 @@ function Home() {
     const newTokenBalancesList = JSON.parse(JSON.stringify(tokenBalancesList)); // this will copy everything from original 
     newTokenBalancesList.push(newTokenBalance.toString());
 
+    const newTokenAllowancesList = JSON.parse(JSON.stringify(tokenAllowancesList)); // this will copy everything from original 
+    newTokenAllowancesList.push(newTokenAllowance.toString());
+
     setTokensList(newTokenAddressList);
     setTokenNamesList(newTokenNamesList);
     setTokenSymbolsList(newTokenSymbolsList);
     setTokenBalancesList(newTokenBalancesList);
+    setTokenAllowancesList(newTokenAllowancesList);
 
     localStorage.setItem('myTokenAddresses', JSON.stringify(newTokenAddressList));
     localStorage.setItem('myTokenNames', JSON.stringify(newTokenNamesList));
     localStorage.setItem('myTokenSymbols', JSON.stringify(newTokenSymbolsList));
     localStorage.setItem('myTokenBalances', JSON.stringify(newTokenBalancesList));
+    localStorage.setItem('myTokenAllowances', JSON.stringify(newTokenAllowancesList));
   }
 
   const getPreviousTokensList = async () => {
@@ -175,15 +197,16 @@ function Home() {
     const tokenNamesStorageVal = localStorage.getItem('myTokenNames');
     const tokenSymbolsStorageVal = localStorage.getItem('myTokenSymbols');
     const tokenBalancesStorageVal = localStorage.getItem('myTokenBalances');
+    const tokenAllowancesStorageVal = localStorage.getItem('myTokenAllowances');
 
     // If they are all null, we haven't saved anything, so we just move on.
-    if (tokenNamesStorageVal == null && tokenNamesStorageVal == null && tokenSymbolsStorageVal == null && tokenBalancesStorageVal == null){
+    if (tokenNamesStorageVal == null && tokenNamesStorageVal == null && tokenSymbolsStorageVal == null && tokenBalancesStorageVal == null && tokenAllowancesStorageVal == null){
       setInformUser(0, "");
       return;
     }
 
     // Otherwise there was an error, so let's clear the previous results and start over
-    if (tokenNamesStorageVal == null || tokenNamesStorageVal == null || tokenSymbolsStorageVal == null || tokenBalancesStorageVal == null){
+    if (tokenNamesStorageVal == null || tokenNamesStorageVal == null || tokenSymbolsStorageVal == null || tokenBalancesStorageVal == null || tokenAllowancesStorageVal == null){
       setInformUser(0, "Something went wrong. Could not fetch previous tokens.");
       localStorage.clear();
       return;
@@ -210,6 +233,19 @@ function Home() {
     }
 
     setTokenBalancesList(previousTokenBalancesList);
+
+    const previousTokenAllowancesList = JSON.parse(tokenAllowancesStorageVal);
+
+    // updateTokenBalances();
+    // This doesn't seem to work because we're still at page load? Contract object or sth like that maybe doesn't exist yet?
+    // Figure out how to do it
+    for (var j = 0; j < previousTokenAllowancesList.length; j++) {
+      const newAllowance = await fetchNewTokenAllowance(previousTokenAddressList[j]);
+      if(newAllowance != null)
+        previousTokenAllowancesList[j] = newAllowance.toString();
+    }
+
+    setTokenAllowancesList(previousTokenAllowancesList);
 
     setInformUser(0, "");
   }
@@ -244,6 +280,38 @@ function Home() {
 
     // console.log("Token Balance: " + tokenBalance);
     return tokenBalance;
+  };
+
+  const updateTokenAllowances = async() => {
+    setInformUser(1, "Fetching new token allowances.");
+    const newTokenAllowances = JSON.parse(JSON.stringify(tokenAllowancesList)); // this will copy everything from original 
+
+    for (var j = 0; j < tokensList.length; j++) {
+      const newAllowance = await fetchNewTokenAllowance(tokensList[j]);
+      if(newAllowance != null)
+        newTokenAllowances[j] = newAllowance.toString();
+    }
+
+    setTokenAllowancesList(newTokenAllowances);
+    localStorage.setItem('myTokenAllowances', JSON.stringify(newTokenAllowances));
+    setInformUser(0, "");
+  }
+
+  const fetchNewTokenAllowance = async (address) => {
+    const contractObj = getTokenContract(address);
+    if(contractObj == null){
+      console.log("Contract with token address " + address + " doesn't seem to exist.");
+      return null;
+    }
+
+    const tokenAllowance = await getTokenAllowance(contractObj);
+    if(tokenAllowance == null){
+      console.log("We couldn't get ERC20 token balance");
+      return null;
+    }
+
+    // console.log("Token Balance: " + tokenBalance);
+    return tokenAllowance;
   };
 
   useEffect(() => {
@@ -290,16 +358,17 @@ function Home() {
             <h3>Tokens List</h3>
             <li>
               {tokensList.map((element, index) => (
-                <ul key={index}> {element} - {tokenNamesList[index]} - {tokenSymbolsList[index]} - {tokenBalancesList[index]}</ul>
+                <ul key={index}> {element} - {tokenNamesList[index]} - {tokenSymbolsList[index]} - Balance: {tokenBalancesList[index]} - Allowance: {tokenAllowancesList[index]}</ul>
               ))}
             </li>
             <button onClick={updateTokenBalances} disabled={tokenAdditionStatus?true:false}>Update Balances</button>
+            <button onClick={updateTokenAllowances} disabled={tokenAdditionStatus?true:false}>Update Allowances</button>
             <p>{tokenAdditionMessage}</p>
             {tokenAdditionStatus?<div className="lds-dual-ring"></div>:null}
 
 
             {/* <TokenBalance tokenAddress={ALBT_TOKEN_ADDRESS} symbol="ALBT" /> */}
-            <TokenBridgeComponent contractAddress={US_ELECTION_ADDRESS} />
+            <TokenBridgeComponent contractAddress={TOKEN_BRIDGE_ADDRESS} />
           </section>
         )}
       </main>
