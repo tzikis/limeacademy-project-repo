@@ -4,7 +4,7 @@ import Link from "next/link";
 import Account from "../components/Account";
 import NativeCurrencyBalance from "../components/NativeCurrencyBalance";
 import TokenBalance from "../components/TokenBalance";
-import USLibrary from "../components/TokenBridge";
+import TokenBridgeComponent from "../components/TokenBridge";
 import { ALBT_TOKEN_ADDRESS, US_ELECTION_ADDRESS } from "../constants";
 import useEagerConnect from "../hooks/useEagerConnect";
 import { useEffect, useState } from "react";
@@ -299,7 +299,7 @@ function Home() {
 
 
             {/* <TokenBalance tokenAddress={ALBT_TOKEN_ADDRESS} symbol="ALBT" /> */}
-            <USLibrary contractAddress={US_ELECTION_ADDRESS} />
+            <TokenBridgeComponent contractAddress={US_ELECTION_ADDRESS} />
           </section>
         )}
       </main>

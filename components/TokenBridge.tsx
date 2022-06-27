@@ -1,7 +1,7 @@
 import type { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
-import useUSElectionContract from "../hooks/useUSElectionContract";
+import useTokenBridgeContract from "../hooks/useTokenBridgeContract";
 
 type USContract = {
   contractAddress: string;
@@ -13,9 +13,9 @@ export enum Leader {
   TRUMP
 }
 
-const USLibrary = ({ contractAddress }: USContract) => {
+const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const { account, library } = useWeb3React<Web3Provider>();
-  const usElectionContract = useUSElectionContract(contractAddress);
+  const tokenBridgeContract = useTokenBridgeContract(contractAddress);
   const [currentLeader, setCurrentLeader] = useState<string>('Unknown');
   const [name, setName] = useState<string | undefined>();
   const [votesBiden, setVotesBiden] = useState<number | undefined>();
@@ -27,29 +27,29 @@ const USLibrary = ({ contractAddress }: USContract) => {
   },[])
 
   const getCurrentLeader = async () => {
-    const currentLeader = await usElectionContract.currentLeader();
-    setCurrentLeader(currentLeader == Leader.UNKNOWN ? 'Unknown' : currentLeader == Leader.BIDEN ? 'Biden' : 'Trump')
+    // const currentLeader = await tokenBridgeContract.currentLeader();
+    // setCurrentLeader(currentLeader == Leader.UNKNOWN ? 'Unknown' : currentLeader == Leader.BIDEN ? 'Biden' : 'Trump')
   }
 
   const stateInput = (input) => {
-    setName(input.target.value)
+    // setName(input.target.value)
   }
 
   const bideVotesInput = (input) => {
-    setVotesBiden(input.target.value)
+    // setVotesBiden(input.target.value)
   }
 
   const trumpVotesInput = (input) => {
-    setVotesTrump(input.target.value)
+    // setVotesTrump(input.target.value)
   }
 
   const seatsInput = (input) => {
-    setStateSeats(input.target.value)
+    // setStateSeats(input.target.value)
   }
 
   const submitStateResults = async () => {
     const result:any = [name, votesBiden, votesTrump, stateSeats];
-    const tx = await usElectionContract.submitStateResult(result);
+    const tx = await tokenBridgeContract.submitStateResult(result);
     await tx.wait();
     resetForm();
   }
@@ -103,4 +103,4 @@ const USLibrary = ({ contractAddress }: USContract) => {
   );
 };
 
-export default USLibrary;
+export default TokenBridgeComponent;
