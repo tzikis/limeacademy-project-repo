@@ -28,6 +28,9 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   const [nonce, setNonce] = useState<string>('');
 
+  const [debugAccount, setDebugAccount] = useState<string>('');
+  const [validationSignature, setValidationSignature] = useState<string>('');
+
   const [eventsListString, setEventsListString] = useState<string>('');
 
   // useEffect(() => {
@@ -104,13 +107,18 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     setNonce(input.target.value)
   }
 
-
+  const debugAccountChanged = (input) => {
+    setDebugAccount(input.target.value)
+  }
+  
 const debugLockValidation = async() => {
-  generateValidation("lock()", tokenContractAddress, account, tokenAmount, nonce);
+  const valSig = await generateValidation("lock()", tokenContractAddress, debugAccount, tokenAmount, nonce);
+  setValidationSignature(valSig);
 }
 
 const debugBurnValidation = async() => {
-  generateValidation("burn()", tokenContractAddress, account, tokenAmount, nonce);
+  const valSig = await generateValidation("burn()", tokenContractAddress, debugAccount, tokenAmount, nonce);
+  setValidationSignature(valSig);
 }
 
 const generateValidation = async (functionName, tokenAddress, receiverAddress, amount, nonce) => {
@@ -155,12 +163,12 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
       message
   });
 
-  console.log(message);
+  // console.log(message);
   const signatureLike = await library.send('eth_signTypedData_v4', [account, data]); // Library is a provider.
-  console.log(signatureLike);
-  const signature = await splitSignature(signatureLike);
-  console.log(signature);
-  return signature;
+  // console.log(signatureLike);
+  // const signature = await splitSignature(signatureLike);
+  // console.log(signature);
+  return signatureLike;
 }
 
   const submitLockTokens = async () => {
@@ -187,7 +195,8 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
   const submitUnlockTokens = async () => {
 
     try {
-      const signature = await generateValidation("burn()", tokenContractAddress, account, tokenAmount, nonce);
+      const signatureLike = await generateValidation("burn()", tokenContractAddress, account, tokenAmount, nonce);
+      const signature = await splitSignature(signatureLike);
       const tx = await tokenBridgeContract.unlock(tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
 
       setTxHash(tx.hash);
@@ -210,7 +219,8 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
 
       const wrappedTokenInfo = {name: "Hello World", symbol: "yay"};
       // const wrappedTokenInfo = ["Hello World", "yay"];
-      const signature = await generateValidation("lock()", tokenContractAddress, account, tokenAmount, nonce);
+      const signatureLike = await generateValidation("lock()", tokenContractAddress, account, tokenAmount, nonce);
+      const signature = await splitSignature(signatureLike);
       const tx = await tokenBridgeContract.mint(tokenContractAddress, account, tokenAmount, nonce, wrappedTokenInfo, signature.v, signature.r, signature.s);
 
       setTxHash(tx.hash);
@@ -276,10 +286,15 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
         <button onClick={submitBurnTokens}>Burn Tokens</button>
       </div>
       <h3>Debug</h3>
+      <label>
+          Debug Token Owner Address :
+          <input onChange={debugAccountChanged} value={debugAccount} type="text" name="debug_token_owner_address" />
+      </label>
       <div className="button-wrapper">
         <button onClick={debugLockValidation}>Debug Lock Validation</button>
         <button onClick={debugBurnValidation}>Debug Burn Validation</button>
       </div>
+      <p>Validation signature: {validationSignature}</p>
 
       <p>{warningMessage}</p>
       <div className="loading-component" hidden={transactionPending == 0}>
