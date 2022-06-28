@@ -16,7 +16,7 @@ type TokenBridge = {
 var eventsList: any = [];
 
 const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
-  const { account, library } = useWeb3React<Web3Provider>();
+  const { account, library, chainId } = useWeb3React<Web3Provider>();
   const tokenBridgeContract = useTokenBridgeContract(contractAddress);
 
   const [warningMessage, setWarningMessage] = useState<string>('');
@@ -29,6 +29,10 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const [nonce, setNonce] = useState<string>('');
 
   const [eventsListString, setEventsListString] = useState<string>('');
+
+  // useEffect(() => {
+  //   console.log(chainId);
+  // },[chainId])
 
   useEffect(() => {
     const eventsListStorage = localStorage.getItem('eventsList')
@@ -45,7 +49,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   const unlockHandler = (tokenNativeAddress, receiver, amount, tx) => {
     // console.log(tx);
-    eventsList.push(["unlock()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), ""]);
+    eventsList.push([chainId.toString(), "unlock()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), ""]);
     localStorage.setItem('eventsList', JSON.stringify(eventsList));
     setEventsList(eventsList);
   };
@@ -53,21 +57,21 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   const lockHandler = (tokenNativeAddress, receiver, amount, nonce, tx) => {
     // console.log(tx);
-    eventsList.push(["lock()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), nonce.toString()]);
+    eventsList.push([chainId.toString(), "lock()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), nonce.toString()]);
     localStorage.setItem('eventsList', JSON.stringify(eventsList));
     setEventsList(eventsList);
   };
 
   //TODO: Change order of receiver and amount if we change the contract?
   const burnHandler = (tokenNativeAddress, amount, receiver, nonce, tx) => {
-    eventsList.push(["burn()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), nonce.toString()]);
+    eventsList.push([chainId.toString(), "burn()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), nonce.toString()]);
     localStorage.setItem('eventsList', JSON.stringify(eventsList));
     setEventsList(eventsList);
   };
 
   const mintHandler = (tokenNativeAddress, amount, receiver, tx) => {
     // console.log(tx);
-    eventsList.push(["mint()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), ""]);
+    eventsList.push([chainId.toString(), "mint()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), ""]);
     localStorage.setItem('eventsList', JSON.stringify(eventsList));
     setEventsList(eventsList);
   };
@@ -78,7 +82,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     newList.reverse();
 
     const eventsArray = newList.map((element, index) => (
-      index + ": " + element[0] + " - tokenAddress: " + element[1] + " - receiver: " + element[2] + " - amount: " + element[3] + " nonce: " + element[4]
+      index + ": " + "Chain: " + element[0] + " Event: " + element[1] + " - tokenAddress: " + element[2] + " - receiver: " + element[3] + " - amount: " + element[4] + " nonce: " + element[5]
       ))
       const eventsString = eventsArray.join('\n')
       console.log(eventsString);
