@@ -13,20 +13,9 @@ type TokenBridge = {
   contractAddress: string;
 };
 
-export enum Leader {
-  UNKNOWN,
-  BIDEN,
-  TRUMP
-}
-
 const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const { account, library } = useWeb3React<Web3Provider>();
   const tokenBridgeContract = useTokenBridgeContract(contractAddress);
-  // const [currentLeader, setCurrentLeader] = useState<string>('Unknown');
-  // const [name, setName] = useState<string | undefined>();
-  // const [votesBiden, setVotesBiden] = useState<number | undefined>();
-  // const [votesTrump, setVotesTrump] = useState<number | undefined>();
-  // const [stateSeats, setStateSeats] = useState<number | undefined>();
 
   const [warningMessage, setWarningMessage] = useState<string>('');
   const [transactionPending, setTransactionPending] = useState<number>(0);
@@ -36,43 +25,8 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const [tokenAmount, setTokenAmount] = useState<string>('');
 
   useEffect(() => {
-    // getCurrentLeader();
   }, [])
 
-  const getCurrentLeader = async () => {
-    // const currentLeader = await tokenBridgeContract.currentLeader();
-    // setCurrentLeader(currentLeader == Leader.UNKNOWN ? 'Unknown' : currentLeader == Leader.BIDEN ? 'Biden' : 'Trump')
-  }
-
-  const stateInput = (input) => {
-    // setName(input.target.value)
-  }
-
-  const bideVotesInput = (input) => {
-    // setVotesBiden(input.target.value)
-  }
-
-  const trumpVotesInput = (input) => {
-    // setVotesTrump(input.target.value)
-  }
-
-  const seatsInput = (input) => {
-    // setStateSeats(input.target.value)
-  }
-
-  const submitStateResults = async () => {
-    // const result: any = [name, votesBiden, votesTrump, stateSeats];
-    // const tx = await tokenBridgeContract.submitStateResult(result);
-    // await tx.wait();
-    // resetForm();
-  }
-
-  const resetForm = async () => {
-    // setName('');
-    // setVotesBiden(0);
-    // setVotesTrump(0);
-    // setStateSeats(0);
-  }
 
   const tokenContractAddressChanged = (input) => {
     setTokenContractAddress(input.target.value)
@@ -81,91 +35,6 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const tokenAmountChanged = (input) => {
     setTokenAmount(input.target.value)
   }
-
-  const  onAttemptToApproveOld = async() => {
-		// const nonce = (await permitContractAddress.nonces(account)); // Our Token Contract Nonces
-		
-		const EIP712Domain = [ // array of objects -> properties from the contract and the types of them ircwithPermit
-        { name: 'name', type: 'string' },
-        { name: 'version', type: 'string' },
-    ];
-
-    const domain = {
-        name: "Tzikis TokenBridge",
-        version: '1',
-    };
-
-    const Validate = [ // array of objects -> properties from erc20withpermit
-        { name: 'functionName', type: 'string' },
-        { name: 'tokenAddress', type: 'address' },
-        { name: 'amount', type: 'uint256' }
-    ];
-
-    const message = {
-        functionName: "lock()", 
-        tokenAddress: tokenContractAddress, // This is the address of the spender whe want to give permit to.
-        amount: tokenAmount
-    };
-
-    let data = JSON.stringify({
-        types: {
-            EIP712Domain,
-            Validate
-        },
-        domain,
-        primaryType: 'Validate',
-        message
-    });
-
-    console.log(data)
-    const signatureLike = await library.send('eth_signTypedData_v4', [account, data]); // Library is a provider.
-
-    // data = "testing testing";
-    // data = formatBytes32String(data);
-    // console.log(data);
-    // const signatureLike = await library.send('eth_sign', [account, data]); // Library is a provider.
-
-    
-  //   const msgParams = [
-  //     {
-  //       type: 'string',      // Any valid solidity type
-  //       name: 'function_name',     // Any string label you want
-  //       value: 'lock()'  // The value to sign
-  //    },
-  //    {
-  //     type: 'address',      // Any valid solidity type
-  //     name: 'token_address',     // Any string label you want
-  //     value: tokenContractAddress  // The value to sign
-  //  },
-  // //  {   
-  // //      type: 'uint256',
-  // //         name: 'amount',
-  // //         value: tokenAmount
-  // //     }
-  //   ]   
-
-    // const signatureLike = await library.send('eth_signTypedData', [msgParams, account]); // Library is a provider.
-
-      // data = "testing testing";
-    // data = formatBytes32String(data);
-
-    // let msg= ["testing", TOKEN_BRIDGE_ADDRESS, 13];
-    // console.log(data);
-    // const signatureLike = await library.send('personal_sign', [account, msg]); // Library is a provider.
-
-
-    const signature = await splitSignature(signatureLike);
-
-    const preparedSignature = {
-        v: signature.v,
-        r: signature.r,
-        s: signature.s,
-        deadline
-    };
-
-    console.log(preparedSignature);
-	  return preparedSignature;
-}
 
 const debugLockValidation = async() => {
   generateValidation("lock()", tokenContractAddress, account, tokenAmount, "1");
@@ -225,52 +94,6 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
   return signature;
 }
 
-const onAttemptToApprove = async () => {
-		// Account here is the wallet address
-		const nonce = (await tokenBridgeContract.nonces(tokenContractAddress)); // Our Token Contract Nonces
-		
-		const EIP712Domain = [ // array of objects -> properties from the contract and the types of them ircwithPermit
-        { name: 'name', type: 'string' },
-        { name: 'version', type: 'string' },
-        { name: 'verifyingContract', type: 'address' }
-    ];
-
-    const domain = {
-        name: "Tzikis TokenBridge",
-        version: '1',
-        verifyingContract: contractAddress
-    };
-
-    const Verify = [ // array of objects -> properties from erc20withpermit
-        { name: 'functionName', type: 'string' },
-        { name: 'tokenAddress', type: 'address' },
-        { name: 'amount', type: 'uint256' },
-        { name: 'nonce', type: 'uint256' }
-    ];
-
-    const message = {
-        functionName: "unlock()", // Wallet Address
-        tokenAddress: tokenContractAddress, // This is the address of the spender whe want to give permit to.
-        amount: tokenAmount,
-        nonce: nonce.toHexString()
-    };
-
-    const data = JSON.stringify({
-        types: {
-            EIP712Domain,
-            Verify
-        },
-        domain,
-        primaryType: 'Verify',
-        message
-    });
-
-    console.log(message);
-    const signatureLike = await library.send('eth_signTypedData_v4', [account, data]); // Library is a provider.
-    const signature = await splitSignature(signatureLike);
-    console.log(signature);
-	  return signature;
-}
   const submitLockTokens = async () => {
 
     try {
