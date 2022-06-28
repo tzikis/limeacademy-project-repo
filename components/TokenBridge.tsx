@@ -13,6 +13,8 @@ type TokenBridge = {
   contractAddress: string;
 };
 
+var eventsList: any = [];
+
 const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const { account, library } = useWeb3React<Web3Provider>();
   const tokenBridgeContract = useTokenBridgeContract(contractAddress);
@@ -24,9 +26,67 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const [tokenContractAddress, setTokenContractAddress] = useState<number>(0);
   const [tokenAmount, setTokenAmount] = useState<string>('');
 
+  const [nonce, setNonce] = useState<string>('');
+
+  const [eventsListString, setEventsListString] = useState<string>('');
+
   useEffect(() => {
+    const eventsListStorage = localStorage.getItem('eventsList')
+    if(eventsListStorage != null)
+      eventsList = JSON.parse(eventsListStorage);
+
+    setEventsList(eventsList);
+
+    tokenBridgeContract.on('Lock', lockHandler);
+    tokenBridgeContract.on('Unlock', unlockHandler);
+    tokenBridgeContract.on('Mint', mintHandler);
+    tokenBridgeContract.on('Burn', burnHandler);
   }, [])
 
+  const unlockHandler = (tokenNativeAddress, receiver, amount, tx) => {
+    // console.log(tx);
+    eventsList.push(["unlock()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), ""]);
+    localStorage.setItem('eventsList', JSON.stringify(eventsList));
+    setEventsList(eventsList);
+  };
+
+
+  const lockHandler = (tokenNativeAddress, receiver, amount, nonce, tx) => {
+    // console.log(tx);
+    eventsList.push(["lock()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), nonce.toString()]);
+    localStorage.setItem('eventsList', JSON.stringify(eventsList));
+    setEventsList(eventsList);
+  };
+
+  //TODO: Change order of receiver and amount if we change the contract?
+  const burnHandler = (tokenNativeAddress, amount, receiver, nonce, tx) => {
+    eventsList.push(["burn()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), nonce.toString()]);
+    localStorage.setItem('eventsList', JSON.stringify(eventsList));
+    setEventsList(eventsList);
+  };
+
+  const mintHandler = (tokenNativeAddress, amount, receiver, tx) => {
+    // console.log(tx);
+    eventsList.push(["mint()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), ""]);
+    localStorage.setItem('eventsList', JSON.stringify(eventsList));
+    setEventsList(eventsList);
+  };
+
+  const setEventsList = (list) => {
+    const newListJSON = JSON.stringify(list);
+    const newList = JSON.parse(newListJSON);
+    newList.reverse();
+
+    const eventsArray = newList.map((element, index) => (
+      index + ": " + element[0] + " - tokenAddress: " + element[1] + " - receiver: " + element[2] + " - amount: " + element[3] + " nonce: " + element[4]
+      ))
+      const eventsString = eventsArray.join('\n')
+      console.log(eventsString);
+
+      setEventsListString(eventsString);
+
+
+  }
 
   const tokenContractAddressChanged = (input) => {
     setTokenContractAddress(input.target.value)
@@ -36,12 +96,17 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     setTokenAmount(input.target.value)
   }
 
+  const nonceChanged = (input) => {
+    setNonce(input.target.value)
+  }
+
+
 const debugLockValidation = async() => {
-  generateValidation("lock()", tokenContractAddress, account, tokenAmount, "1");
+  generateValidation("lock()", tokenContractAddress, account, tokenAmount, nonce);
 }
 
 const debugBurnValidation = async() => {
-  generateValidation("burn()", tokenContractAddress, account, tokenAmount, "1");
+  generateValidation("burn()", tokenContractAddress, account, tokenAmount, nonce);
 }
 
 const generateValidation = async (functionName, tokenAddress, receiverAddress, amount, nonce) => {
@@ -118,9 +183,8 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
   const submitUnlockTokens = async () => {
 
     try {
-      const burnNonce = "2"
-      const signature = await generateValidation("burn()", tokenContractAddress, account, tokenAmount, burnNonce);
-      const tx = await tokenBridgeContract.unlock(tokenContractAddress, account, tokenAmount, burnNonce, signature.v, signature.r, signature.s);
+      const signature = await generateValidation("burn()", tokenContractAddress, account, tokenAmount, nonce);
+      const tx = await tokenBridgeContract.unlock(tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
 
       setTxHash(tx.hash);
       setTransactionPending(1);
@@ -142,9 +206,8 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
 
       const wrappedTokenInfo = {name: "Hello World", symbol: "yay"};
       // const wrappedTokenInfo = ["Hello World", "yay"];
-      const lockNonce = "5"
-      const signature = await generateValidation("lock()", tokenContractAddress, account, tokenAmount, lockNonce);
-      const tx = await tokenBridgeContract.mint(tokenContractAddress, account, tokenAmount, lockNonce, wrappedTokenInfo, signature.v, signature.r, signature.s);
+      const signature = await generateValidation("lock()", tokenContractAddress, account, tokenAmount, nonce);
+      const tx = await tokenBridgeContract.mint(tokenContractAddress, account, tokenAmount, nonce, wrappedTokenInfo, signature.v, signature.r, signature.s);
 
       setTxHash(tx.hash);
       setTransactionPending(1);
@@ -182,21 +245,33 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
 
   return (
     <div className="results-form">
-      <h2>Lock/Unlock Token</h2>
+      <h2>Bridge Token</h2>
+      <h3>Common</h3>
       <label>
         Token Address:
         <input onChange={tokenContractAddressChanged} value={tokenContractAddress} type="text" name="lock_token_contract_address" />
         &nbsp;Amount:
         <input onChange={tokenAmountChanged} value={tokenAmount} type="number" name="lock_token_amount" />
       </label>
+      <h3>Native</h3>
       <div className="button-wrapper">
-        <button onClick={submitLockTokens}>Lock Tokens</button>
-        <button onClick={submitUnlockTokens}>Unlock Tokens</button>
+        <button onClick={submitLockTokens}>Lock Tokens</button> &nbsp;
+        <label>
+          - Burn Nonce: 
+          <input onChange={nonceChanged} value={nonce} type="text" name="validator_nonce" />
+        </label>
+        <button onClick={submitUnlockTokens}>Unlock Tokens</button>  
       </div>
+      <h3>Non-Native</h3>
       <div className="button-wrapper">
-        <button onClick={submitMintTokens}>Mint Tokens</button>
+        <label>
+          Lock Nonce: 
+          <input onChange={nonceChanged} value={nonce} type="text" name="validator_nonce2" />
+        </label>
+        <button onClick={submitMintTokens}>Mint Tokens</button> &nbsp; - &nbsp;
         <button onClick={submitBurnTokens}>Burn Tokens</button>
       </div>
+      <h3>Debug</h3>
       <div className="button-wrapper">
         <button onClick={debugLockValidation}>Debug Lock Validation</button>
         <button onClick={debugBurnValidation}>Debug Burn Validation</button>
@@ -215,6 +290,7 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
           <p>Results successfuly submitted.</p>
         </div>
       </div>
+      <pre>{eventsListString}</pre>
       <style jsx>{`
         .results-form {
           display: flex;
