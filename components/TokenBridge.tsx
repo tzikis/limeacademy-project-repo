@@ -32,9 +32,6 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const [lockValidationSignature, setLockValidationSignature] = useState<string>('');
   const [burnValidationSignature, setBurnValidationSignature] = useState<string>('');
 
-  const [debugAccount, setDebugAccount] = useState<string>('');
-  const [validationSignature, setValidationSignature] = useState<string>('');
-
   const [eventsListString, setEventsListString] = useState<string>('');
 
   // useEffect(() => {
@@ -123,70 +120,6 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const burnValidationSignatureChanged = (input) => {
     setBurnValidationSignature(input.target.value)
   }
-
-  const debugAccountChanged = (input) => {
-    setDebugAccount(input.target.value)
-  }
-  
-const debugLockValidation = async() => {
-  const valSig = await generateValidation("lock()", tokenContractAddress, debugAccount, tokenAmount, lockNonce);
-  setValidationSignature(valSig);
-}
-
-const debugBurnValidation = async() => {
-  const valSig = await generateValidation("burn()", tokenContractAddress, debugAccount, tokenAmount, burnNonce);
-  setValidationSignature(valSig);
-}
-
-const generateValidation = async (functionName, tokenAddress, receiverAddress, amount, nonce) => {
-  // Account here is the wallet address
-  // const nonce = (await tokenBridgeContract.nonces(tokenContractAddress)); // Our Token Contract Nonces
-  
-  const EIP712Domain = [ // array of objects -> properties from the contract and the types of them ircwithPermit
-      { name: 'name', type: 'string' },
-      { name: 'version', type: 'string' },
-      { name: 'verifyingContract', type: 'address' }
-  ];
-
-  const domain = {
-      name: "Tzikis TokenBridge",
-      version: '1',
-      verifyingContract: contractAddress
-  };
-
-  const Verify = [ // array of objects -> properties from erc20withpermit
-      { name: 'functionName', type: 'string' },
-      { name: 'tokenAddress', type: 'address' },
-      { name: 'receiverAddress', type: 'address' },
-      { name: 'amount', type: 'uint32' },
-      { name: 'nonce', type: 'uint32' }
-  ];
-
-  const message = {
-      functionName: functionName, // Wallet Address
-      tokenAddress: tokenAddress, // This is the address of the contract.
-      receiverAddress: receiverAddress, // This is the address of the spender whe want to give permit to.
-      amount: amount,
-      nonce: nonce
-  };
-
-  const data = JSON.stringify({
-      types: {
-          EIP712Domain,
-          Verify
-      },
-      domain,
-      primaryType: 'Verify',
-      message
-  });
-
-  // console.log(message);
-  const signatureLike = await library.send('eth_signTypedData_v4', [account, data]); // Library is a provider.
-  // console.log(signatureLike);
-  // const signature = await splitSignature(signatureLike);
-  // console.log(signature);
-  return signatureLike;
-}
 
   const submitLockTokens = async () => {
 
@@ -289,8 +222,10 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
       <h3>Native</h3>
       <div className="button-wrapper">
         <button onClick={submitLockTokens}>Lock Tokens</button> &nbsp;
+      </div>
+      <div className="button-wrapper">
         <label>
-          - Burn Nonce: 
+          Burn Nonce: 
           <input onChange={burnNonceChanged} value={burnNonce} type="text" name="validator_nonce" />
           &nbsp; Burn Signature: 
           <input onChange={burnValidationSignatureChanged} value={burnValidationSignature} type="text" name="lock_token_contract_address" />
@@ -305,20 +240,11 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
           &nbsp; Lock Signature: 
           <input onChange={lockValidationSignatureChanged} value={lockValidationSignature} type="text" name="lock_token_contract_address" />
         </label>
-        <button onClick={submitMintTokens}>Mint Tokens</button> &nbsp; - &nbsp;
+        <button onClick={submitMintTokens}>Mint Tokens</button>
+      </div>
+      <div className="button-wrapper">
         <button onClick={submitBurnTokens}>Burn Tokens</button>
       </div>
-      <h3>Generate Validations</h3>
-      <label>
-          Token Owner/Receiver Address:
-          <input onChange={debugAccountChanged} value={debugAccount} type="text" name="debug_token_owner_address" />
-      </label>
-      <div className="button-wrapper">
-        <button onClick={debugLockValidation}>Generate Lock Validation</button>
-        <button onClick={debugBurnValidation}>Generate Burn Validation</button>
-      </div>
-      <p>Validation signature: {validationSignature}</p>
-
       <p>{warningMessage}</p>
       <div className="loading-component" hidden={transactionPending == 0}>
         <h3>Submitting Results</h3>

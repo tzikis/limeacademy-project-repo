@@ -5,6 +5,7 @@ import Account from "../components/Account";
 import NativeCurrencyBalance from "../components/NativeCurrencyBalance";
 import TokenBalance from "../components/TokenBalance";
 import TokenBridgeComponent from "../components/TokenBridge";
+import TokenBridgeValidatorComponent from "../components/TokenBridgeValidator";
 import { TOKEN_BRIDGE_ADDRESS } from "../constants";
 import useEagerConnect from "../hooks/useEagerConnect";
 import { useEffect, useState } from "react";
@@ -396,7 +397,8 @@ function Home() {
           <section>
             <NativeCurrencyBalance />
             <form onSubmit={(e) => { e.preventDefault(); return false; }}>
-              <h2>Add More ERC20 Tokens</h2>
+              <h2>ERC20 Tokens</h2>
+              <h3>Add More ERC20 Tokens</h3>
               <label>
                 Tokens Addess:
                 <input onChange={tokenAddressInput} value={newTokenAddress} type="text" name="state" disabled={tokenAdditionStatus ? true : false} />
@@ -404,7 +406,7 @@ function Home() {
               <button onClick={addNewTokenAddress} disabled={tokenAdditionStatus ? true : false}>Add Token</button>
             </form>
 
-            <h2>Tokens List</h2>
+            <h3>Tokens List</h3>
             <li>
               {tokensList.map((element, index) => (
                 <ul key={index}> {element} - {tokenNamesList[index]} - {tokenSymbolsList[index]} - Balance: {tokenBalancesList[index]} - Allowance: {tokenAllowancesList[index]}</ul>
@@ -415,7 +417,7 @@ function Home() {
             <p>{tokenAdditionMessage}</p>
             {tokenAdditionStatus ? <div className="lds-dual-ring"></div> : null}
 
-            <h2>Set allowance</h2>
+            <h3>Set allowance</h3>
             <label>
               Token Address:
               <input onChange={allowanceContractAddressChanged} value={allowanceContractAddress} type="text" name="allowance_contract_address" />
@@ -440,6 +442,7 @@ function Home() {
             </div>
             {/* <TokenBalance tokenAddress={ALBT_TOKEN_ADDRESS} symbol="ALBT" /> */}
             <TokenBridgeComponent contractAddress={TOKEN_BRIDGE_ADDRESS} />
+            <TokenBridgeValidatorComponent contractAddress={TOKEN_BRIDGE_ADDRESS} />
           </section>
         )}
       </main>
