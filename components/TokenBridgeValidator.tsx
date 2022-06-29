@@ -23,11 +23,22 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
 
   const [eventsHistoryString, setEventsHistoryString] = useState<string>('');
 
+  const [contractOwner, setContractOwner] = useState<string>('');
+
   // useEffect(() => {
   //   console.log(chainId);
   // },[chainId])
 
-  useEffect(() => {
+    useEffect(() => {
+      checkOwner();
+  },[account])
+
+  const checkOwner = async() => {
+    const contractOwner = await tokenBridgeContract.owner();
+    setContractOwner(contractOwner);
+  }
+
+    useEffect(() => {
     const eventsHistoryStorage = localStorage.getItem('eventsHistory')
     if(eventsHistoryStorage != null)
       eventsHistory = JSON.parse(eventsHistoryStorage);
@@ -182,24 +193,26 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
 
   return (
     <div className="results-form">
-      <h2>Validator</h2>
-      <h3>Generate Validations</h3>
-      <label>
-        Token Address:
-        <input onChange={tokenContractAddressChanged} value={tokenContractAddress} type="text" name="lock_token_contract_address" />
-        Token Owner/Receiver Address:
-          <input onChange={receiverAddressChanged} value={receiverAddress} type="text" name="debug_token_owner_address" />
-          &nbsp;Amount:
-        <input onChange={tokenAmountChanged} value={tokenAmount} type="number" name="lock_token_amount" />
-        Nonce: 
-          <input onChange={nonceChanged} value={nonce} type="text" name="validator_nonce2" />
-      </label>
-      <div className="button-wrapper">
-        <button onClick={debugLockValidation}>Generate Lock Validation</button> &nbsp;
-        <button onClick={debugBurnValidation}>Generate Burn Validation</button>
+      <div hidden={account != contractOwner}>
+        <h2>Validator</h2>
+        <h3>Generate Validations</h3>
+        <label>
+          Token Address:
+          <input onChange={tokenContractAddressChanged} value={tokenContractAddress} type="text" name="lock_token_contract_address" />
+          Token Owner/Receiver Address:
+            <input onChange={receiverAddressChanged} value={receiverAddress} type="text" name="debug_token_owner_address" />
+            &nbsp;Amount:
+          <input onChange={tokenAmountChanged} value={tokenAmount} type="number" name="lock_token_amount" />
+          Nonce: 
+            <input onChange={nonceChanged} value={nonce} type="text" name="validator_nonce2" />
+        </label>
+        <div className="button-wrapper">
+          <button onClick={debugLockValidation}>Generate Lock Validation</button> &nbsp;
+          <button onClick={debugBurnValidation}>Generate Burn Validation</button>
+        </div>
+        <p>Validation signature: {validationSignature}</p>
+        <pre>{eventsHistoryString}</pre>
       </div>
-      <p>Validation signature: {validationSignature}</p>
-      <pre>{eventsHistoryString}</pre>
       <style jsx>{`
         .results-form {
           display: flex;
