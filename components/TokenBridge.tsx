@@ -26,7 +26,11 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const [tokenContractAddress, setTokenContractAddress] = useState<number>(0);
   const [tokenAmount, setTokenAmount] = useState<string>('');
 
-  const [nonce, setNonce] = useState<string>('');
+  const [lockNonce, setLockNonce] = useState<string>('');
+  const [burnNonce, setBurnNonce] = useState<string>('');
+
+  const [lockValidationSignature, setLockValidationSignature] = useState<string>('');
+  const [burnValidationSignature, setBurnValidationSignature] = useState<string>('');
 
   const [debugAccount, setDebugAccount] = useState<string>('');
   const [validationSignature, setValidationSignature] = useState<string>('');
@@ -103,8 +107,21 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     setTokenAmount(input.target.value)
   }
 
-  const nonceChanged = (input) => {
-    setNonce(input.target.value)
+  const lockNonceChanged = (input) => {
+    setLockNonce(input.target.value)
+  }
+
+  const burnNonceChanged = (input) => {
+    setBurnNonce(input.target.value)
+  }
+
+
+  const lockValidationSignatureChanged = (input) => {
+    setLockValidationSignature(input.target.value)
+  }
+
+  const burnValidationSignatureChanged = (input) => {
+    setBurnValidationSignature(input.target.value)
   }
 
   const debugAccountChanged = (input) => {
@@ -112,12 +129,12 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   }
   
 const debugLockValidation = async() => {
-  const valSig = await generateValidation("lock()", tokenContractAddress, debugAccount, tokenAmount, nonce);
+  const valSig = await generateValidation("lock()", tokenContractAddress, debugAccount, tokenAmount, lockNonce);
   setValidationSignature(valSig);
 }
 
 const debugBurnValidation = async() => {
-  const valSig = await generateValidation("burn()", tokenContractAddress, debugAccount, tokenAmount, nonce);
+  const valSig = await generateValidation("burn()", tokenContractAddress, debugAccount, tokenAmount, burnNonce);
   setValidationSignature(valSig);
 }
 
@@ -195,9 +212,10 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
   const submitUnlockTokens = async () => {
 
     try {
-      const signatureLike = await generateValidation("burn()", tokenContractAddress, account, tokenAmount, nonce);
-      const signature = await splitSignature(signatureLike);
-      const tx = await tokenBridgeContract.unlock(tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
+      // const signatureLike = await generateValidation("burn()", tokenContractAddress, account, tokenAmount, burnNonce);
+      // const signature = await splitSignature(signatureLike);
+      const signature = await splitSignature(burnValidationSignature);
+      const tx = await tokenBridgeContract.unlock(tokenContractAddress, account, tokenAmount, burnNonce, signature.v, signature.r, signature.s);
 
       setTxHash(tx.hash);
       setTransactionPending(1);
@@ -219,9 +237,10 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
 
       const wrappedTokenInfo = {name: "Hello World", symbol: "yay"};
       // const wrappedTokenInfo = ["Hello World", "yay"];
-      const signatureLike = await generateValidation("lock()", tokenContractAddress, account, tokenAmount, nonce);
-      const signature = await splitSignature(signatureLike);
-      const tx = await tokenBridgeContract.mint(tokenContractAddress, account, tokenAmount, nonce, wrappedTokenInfo, signature.v, signature.r, signature.s);
+      // const signatureLike = await generateValidation("lock()", tokenContractAddress, account, tokenAmount, lockNonce);
+      // const signature = await splitSignature(signatureLike);
+      const signature = await splitSignature(lockValidationSignature);
+      const tx = await tokenBridgeContract.mint(tokenContractAddress, account, tokenAmount, lockNonce, wrappedTokenInfo, signature.v, signature.r, signature.s);
 
       setTxHash(tx.hash);
       setTransactionPending(1);
@@ -272,7 +291,9 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
         <button onClick={submitLockTokens}>Lock Tokens</button> &nbsp;
         <label>
           - Burn Nonce: 
-          <input onChange={nonceChanged} value={nonce} type="text" name="validator_nonce" />
+          <input onChange={burnNonceChanged} value={burnNonce} type="text" name="validator_nonce" />
+          &nbsp; Burn Signature: 
+          <input onChange={burnValidationSignatureChanged} value={burnValidationSignature} type="text" name="lock_token_contract_address" />
         </label>
         <button onClick={submitUnlockTokens}>Unlock Tokens</button>  
       </div>
@@ -280,19 +301,21 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
       <div className="button-wrapper">
         <label>
           Lock Nonce: 
-          <input onChange={nonceChanged} value={nonce} type="text" name="validator_nonce2" />
+          <input onChange={lockNonceChanged} value={lockNonce} type="text" name="validator_nonce2" />
+          &nbsp; Lock Signature: 
+          <input onChange={lockValidationSignatureChanged} value={lockValidationSignature} type="text" name="lock_token_contract_address" />
         </label>
         <button onClick={submitMintTokens}>Mint Tokens</button> &nbsp; - &nbsp;
         <button onClick={submitBurnTokens}>Burn Tokens</button>
       </div>
-      <h3>Debug</h3>
+      <h3>Generate Validations</h3>
       <label>
-          Debug Token Owner Address :
+          Token Owner/Receiver Address:
           <input onChange={debugAccountChanged} value={debugAccount} type="text" name="debug_token_owner_address" />
       </label>
       <div className="button-wrapper">
-        <button onClick={debugLockValidation}>Debug Lock Validation</button>
-        <button onClick={debugBurnValidation}>Debug Burn Validation</button>
+        <button onClick={debugLockValidation}>Generate Lock Validation</button>
+        <button onClick={debugBurnValidation}>Generate Burn Validation</button>
       </div>
       <p>Validation signature: {validationSignature}</p>
 
