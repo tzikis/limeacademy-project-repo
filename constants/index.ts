@@ -11,11 +11,8 @@
   // Network chain ids
   export const supportedMetamaskNetworks = [1, 3, 4, 5, 42];
 
-  export const ALBT_TOKEN_ADDRESS = "0xc6869a93ef55e1d8ec8fdcda89c9d93616cf0a72";
-  export const US_ELECTION_ADDRESS = "0xA09fF4F39FD8553051ABf0188100b7C5A6dc5452";
+  export const TOKEN_BRIDGE_ADDRESSES = {
+    3: {network: "Ropsten", id:3, address:"0x1b249c6bE4c10D101B83404719456fA483a749e2"},
+    4: {network: "Rinkeby", id:4, address:"0x282Bb35b81f431eFF387d4B20B0966D67B69a7fa"}
+  };
 
-
-  export const TZK_TOKEN_ADDRESS = "0xD332B8CC2b5E7eB87f85FD86526244f4d576a978";
-  export const TOKEN_BRIDGE_ADDRESS = "0x747cdD82Ce14112B2E24E1fc3487B8F04bddCDEd";
-
-  export const TOKEN_BRIDGE_NONNATIVE_ADDRESS = "0xC0596Ff8C20C36DD5a83D1B5aB184a8308Bb2Ccb";

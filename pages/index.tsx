@@ -6,7 +6,7 @@ import NativeCurrencyBalance from "../components/NativeCurrencyBalance";
 import TokenBalance from "../components/TokenBalance";
 import TokenBridgeComponent from "../components/TokenBridge";
 import TokenBridgeValidatorComponent from "../components/TokenBridgeValidator";
-import { TOKEN_BRIDGE_ADDRESS } from "../constants";
+import { TOKEN_BRIDGE_ADDRESSES } from "../constants";
 import useEagerConnect from "../hooks/useEagerConnect";
 import { useEffect, useState } from "react";
 
@@ -138,7 +138,7 @@ function Home() {
       tokenName = await contractObject.name();
       tokenSymbol = await contractObject.symbol();
       tokenUserBalance = await contractObject.balanceOf(account);
-      tokenUserAllowance = await contractObject.allowance(account, TOKEN_BRIDGE_ADDRESS);
+      tokenUserAllowance = await contractObject.allowance(account, TOKEN_BRIDGE_ADDRESSES[chainId]["address"]);
     }
     catch (error) {
       console.log(error);
@@ -166,7 +166,7 @@ function Home() {
   const getTokenAllowance = async (contractObject,) => {
     let tokenUserAllowance;
     try {
-      tokenUserAllowance = await contractObject.allowance(account, TOKEN_BRIDGE_ADDRESS);
+      tokenUserAllowance = await contractObject.allowance(account, TOKEN_BRIDGE_ADDRESSES[chainId]["address"]);
     }
     catch (error) {
       console.log(error);
@@ -361,7 +361,7 @@ function Home() {
 
 
     try {
-      const tx = await contractObj.approve(TOKEN_BRIDGE_ADDRESS, allowanceAmount);
+      const tx = await contractObj.approve(TOKEN_BRIDGE_ADDRESSES[chainId]["address"], allowanceAmount);
 
       setTxHash(tx.hash);
       setTransactionPending(1);
@@ -463,8 +463,8 @@ function Home() {
               </div>
             </div>
             {/* <TokenBalance tokenAddress={ALBT_TOKEN_ADDRESS} symbol="ALBT" /> */}
-            <TokenBridgeComponent contractAddress={TOKEN_BRIDGE_ADDRESS} />
-            <TokenBridgeValidatorComponent contractAddress={TOKEN_BRIDGE_ADDRESS} />
+            <TokenBridgeComponent contractAddress={TOKEN_BRIDGE_ADDRESSES[chainId]["address"]} />
+            <TokenBridgeValidatorComponent contractAddress={TOKEN_BRIDGE_ADDRESSES[chainId]["address"]} />
           </section>
         )}
       </main>

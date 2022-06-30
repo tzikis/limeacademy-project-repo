@@ -42,6 +42,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
   }
 
     useEffect(() => {
+    console.log("Token Bridge Validator useEffect called");
     const eventsHistoryStorage = localStorage.getItem('eventsHistory')
     if(eventsHistoryStorage != null)
       eventsHistory = JSON.parse(eventsHistoryStorage);

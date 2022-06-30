@@ -1,7 +1,6 @@
 import type { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
-import { TOKEN_BRIDGE_ADDRESS } from "../constants";
 import useTokenBridgeContract from "../hooks/useTokenBridgeContract";
 
 
@@ -49,6 +48,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   },[chainId, account])
 
   useEffect(() => {
+    console.log("Token Bridge useEffect called");
     tokenBridgeContract.on('Lock', lockHandler);
     tokenBridgeContract.on('Unlock', unlockHandler);
     tokenBridgeContract.on('Mint', mintHandler);
@@ -122,7 +122,6 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const setEventsList = (list) => {
     const newListJSON = JSON.stringify(list);
     const newList = JSON.parse(newListJSON);
-    console.log(newList);
     newList.reverse();
 
     const eventsArray = newList.map((element, index) => (
