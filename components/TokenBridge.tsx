@@ -28,9 +28,11 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const [targetChainId, setTargetChainId] = useState<string>('');
   
   const [lockNonce, setLockNonce] = useState<string>('');
-  const [burnNonce, setBurnNonce] = useState<string>('');
-
   const [lockValidationSignature, setLockValidationSignature] = useState<string>('');
+  const [mintTokenName, setMintTokenName] = useState<string>('');
+  const [mintTokenSymbol, setMintTokenSymbol] = useState<string>('');
+
+  const [burnNonce, setBurnNonce] = useState<string>('');
   const [burnValidationSignature, setBurnValidationSignature] = useState<string>('');
 
   const [eventsListString, setEventsListString] = useState<string>('');
@@ -152,13 +154,20 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     setLockNonce(input.target.value)
   }
 
-  const burnNonceChanged = (input) => {
-    setBurnNonce(input.target.value)
-  }
-
-
   const lockValidationSignatureChanged = (input) => {
     setLockValidationSignature(input.target.value)
+  }
+
+  const mintTokenNameChanged = (input) => {
+    setMintTokenName(input.target.value)
+  }
+
+  const mintTokenSymbolChanged = (input) => {
+    setMintTokenSymbol(input.target.value)
+  }
+
+  const burnNonceChanged = (input) => {
+    setBurnNonce(input.target.value)
   }
 
   const burnValidationSignatureChanged = (input) => {
@@ -212,7 +221,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     
     try {
 
-      const wrappedTokenInfo = {name: "Hello World", symbol: "yay"};
+      const wrappedTokenInfo = {name: mintTokenName, symbol: mintTokenSymbol};
       // const wrappedTokenInfo = ["Hello World", "yay"];
       // const signatureLike = await generateValidation("lock()", tokenContractAddress, account, tokenAmount, lockNonce);
       // const signature = await splitSignature(signatureLike);
@@ -285,6 +294,10 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
           <input onChange={lockNonceChanged} value={lockNonce} type="text" name="validator_nonce2" />
           &nbsp; Lock Signature: 
           <input onChange={lockValidationSignatureChanged} value={lockValidationSignature} type="text" name="lock_token_contract_address" />
+          &nbsp; Mint Token Name: 
+          <input onChange={mintTokenNameChanged} value={mintTokenName} type="text" name="mint_token_name" />
+          &nbsp; Mint Token Symbol: 
+          <input onChange={mintTokenSymbolChanged} value={mintTokenSymbol} type="text" name="mint_token_symbol" />
         </label>
         <button onClick={submitMintTokens}>Mint Tokens</button>
       </div>
