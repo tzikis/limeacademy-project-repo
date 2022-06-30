@@ -89,7 +89,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       index + ": " + "Chain: " + element[0] + " Event: " + element[1] + " - tokenAddress: " + element[2] + " - receiver: " + element[3] + " - amount: " + element[4] + " nonce: " + element[5]
       ))
       const eventsString = eventsArray.join('\n')
-      console.log(eventsString);
+      // console.log(eventsString);
 
       setEventsListString(eventsString);
 
