@@ -3,6 +3,8 @@ import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
 import useTokenBridgeContract from "../hooks/useTokenBridgeContract";
 
+import { splitSignature } from "@ethersproject/bytes";
+
 type TokenBridge = {
   contractAddress: string;
 };
@@ -20,6 +22,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
 
   const [receiverAddress, setReceiverAddress] = useState<string>('');
   const [validationSignature, setValidationSignature] = useState<string>('');
+  const [validationVerificationResponse, setValidationVerificationResponse] = useState<string>('');
 
   const [eventsHistoryString, setEventsHistoryString] = useState<string>('');
 
@@ -160,6 +163,45 @@ const generateBurnValidation = async() => {
   setValidationSignature(valSig);
 }
 
+const testLockValidation = async() => {
+  const valSig = await generateValidation("lock()", tokenContractAddress, receiverAddress, tokenAmount, nonce);
+  try {
+    const signature = await splitSignature(valSig);
+    // setTransactionPending(1);
+    // setWarningMessage("Unlocking token in Token Bridge Contract.");
+    const response = await tokenBridgeContract.verify("lock()", tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
+    // setWarningMessage("Unlocking from Token Bridge Contract was successful.");
+    // setTransactionPending(2);
+    setValidationSignature(valSig);
+    setValidationVerificationResponse(response.toString())
+  }
+  catch (error) {
+    console.log(error)
+    console.error(error)
+    // setWarningMessage("Sorry, we couldn't do that. An error occured");
+  }
+
+}
+
+const testBurnValidation = async() => {
+  const valSig = await generateValidation("burn()", tokenContractAddress, receiverAddress, tokenAmount, nonce);
+  try {
+    const signature = await splitSignature(valSig);
+    // setTransactionPending(1);
+    // setWarningMessage("Unlocking token in Token Bridge Contract.");
+    const response = await tokenBridgeContract.verify("burn()", tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
+    // setWarningMessage("Unlocking from Token Bridge Contract was successful.");
+    // setTransactionPending(2);
+    setValidationSignature(valSig);
+    setValidationVerificationResponse(response.toString())
+  }
+  catch (error) {
+    console.log(error)
+    console.error(error)
+    // setWarningMessage("Sorry, we couldn't do that. An error occured");
+  }
+
+}
 
 const updateHistory = (functionName, tokenContractAddress, receiverAccount, tokenAmount, nonce, signature) => {
   for (var j = 0; j < eventsHistory.length; j++) {
@@ -247,7 +289,12 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
           <button onClick={generateLockValidation}>Generate Lock Validation</button> &nbsp;
           <button onClick={generateBurnValidation}>Generate Burn Validation</button>
         </div>
+        <div className="button-wrapper">
+          <button onClick={testLockValidation}>Test Lock Validation Verification</button> &nbsp;
+          <button onClick={testBurnValidation}>Test Burn Validation Verification</button>
+        </div>
         <p>Validation signature: {validationSignature}</p>
+        <p>Verification response: {validationVerificationResponse}</p>
         <pre>{eventsHistoryString}</pre>
       </div>
       <style jsx>{`
