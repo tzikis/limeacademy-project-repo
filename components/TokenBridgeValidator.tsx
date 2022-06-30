@@ -148,13 +148,13 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
     setReceiverAddress(input.target.value)
   }
   
-const debugLockValidation = async() => {
+const generateLockValidation = async() => {
   const valSig = await generateValidation("lock()", tokenContractAddress, receiverAddress, tokenAmount, nonce);
   updateHistory("lock()", tokenContractAddress, receiverAddress, tokenAmount, nonce, valSig)
   setValidationSignature(valSig);
 }
 
-const debugBurnValidation = async() => {
+const generateBurnValidation = async() => {
   const valSig = await generateValidation("burn()", tokenContractAddress, receiverAddress, tokenAmount, nonce);
   updateHistory("burn()", tokenContractAddress, receiverAddress, tokenAmount, nonce, valSig)
   setValidationSignature(valSig);
@@ -235,17 +235,17 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
         <h3>Generate Validations</h3>
         <label>
           Token Address:
-          <input onChange={tokenContractAddressChanged} value={tokenContractAddress} type="text" name="lock_token_contract_address" />
+          <input onChange={tokenContractAddressChanged} value={tokenContractAddress} type="text" name="validator_token_contract_address" />
           Token Owner/Receiver Address:
-            <input onChange={receiverAddressChanged} value={receiverAddress} type="text" name="debug_token_owner_address" />
+            <input onChange={receiverAddressChanged} value={receiverAddress} type="text" name="validator_token_receiver_owner_address" />
             &nbsp;Amount:
-          <input onChange={tokenAmountChanged} value={tokenAmount} type="number" name="lock_token_amount" />
+          <input onChange={tokenAmountChanged} value={tokenAmount} type="number" name="validator_token_amount" />
           Nonce: 
-            <input onChange={nonceChanged} value={nonce} type="text" name="validator_nonce2" />
+            <input onChange={nonceChanged} value={nonce} type="text" name="validator_nonce" />
         </label>
         <div className="button-wrapper">
-          <button onClick={debugLockValidation}>Generate Lock Validation</button> &nbsp;
-          <button onClick={debugBurnValidation}>Generate Burn Validation</button>
+          <button onClick={generateLockValidation}>Generate Lock Validation</button> &nbsp;
+          <button onClick={generateBurnValidation}>Generate Burn Validation</button>
         </div>
         <p>Validation signature: {validationSignature}</p>
         <pre>{eventsHistoryString}</pre>
