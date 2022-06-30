@@ -43,7 +43,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
     if(eventsHistoryStorage != null)
       eventsHistory = JSON.parse(eventsHistoryStorage);
 
-    seteventsHistory(eventsHistory);
+    setEventsHistory(eventsHistory);
 
     tokenBridgeContract.on('Lock', lockHandler);
     tokenBridgeContract.on('Unlock', unlockHandler);
@@ -55,7 +55,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
     // console.log(tx);
     eventsHistory.push([chainId.toString(), "unlock()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), ""]);
     localStorage.setItem('eventsHistory', JSON.stringify(eventsHistory));
-    seteventsHistory(eventsHistory);
+    setEventsHistory(eventsHistory);
   };
 
 
@@ -63,23 +63,23 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
     // console.log(tx);
     eventsHistory.push([chainId.toString(), "lock()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), nonce.toString()]);
     localStorage.setItem('eventsHistory', JSON.stringify(eventsHistory));
-    seteventsHistory(eventsHistory);
+    setEventsHistory(eventsHistory);
   };
 
   const burnHandler = (tokenNativeAddress, receiver, amount, wrappedTokenAddress, nonce, tx) => {
     eventsHistory.push([chainId.toString(), "burn()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), nonce.toString()]);
     localStorage.setItem('eventsHistory', JSON.stringify(eventsHistory));
-    seteventsHistory(eventsHistory);
+    setEventsHistory(eventsHistory);
   };
 
   const mintHandler = (tokenNativeAddress, receiver, amount, wrappedTokenAddress, tx) => {
     // console.log(tx);
     eventsHistory.push([chainId.toString(), "mint()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), ""]);
     localStorage.setItem('eventsHistory', JSON.stringify(eventsHistory));
-    seteventsHistory(eventsHistory);
+    setEventsHistory(eventsHistory);
   };
 
-  const seteventsHistory = (list) => {
+  const setEventsHistory = (list) => {
     const newListJSON = JSON.stringify(list);
     const newList = JSON.parse(newListJSON);
     newList.reverse();
@@ -137,7 +137,7 @@ const updateHistory = (functionName, tokenContractAddress, receiverAccount, toke
     if(functionName == eventFunctionName && tokenContractAddress == eventTokenContractAddress && receiverAccount == eventReceiverAccount && eventTokenAmount == tokenAmount && nonce == eventNonce){
       eventsHistory[j][6] = signature;
       localStorage.setItem('eventsHistory', JSON.stringify(eventsHistory));
-      seteventsHistory(eventsHistory);
+      setEventsHistory(eventsHistory);
       break;
     }
   }
