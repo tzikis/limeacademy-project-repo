@@ -42,6 +42,8 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     const eventsListStorage = localStorage.getItem('eventsList')
     if(eventsListStorage != null)
       eventsList = JSON.parse(eventsListStorage);
+    else
+      eventsList = [];
 
     setEventsList(eventsList);
 
@@ -53,7 +55,15 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   const unlockHandler = (tokenNativeAddress, receiver, amount, tx) => {
     // console.log(tx);
-    eventsList.push([chainId.toString(), "unlock()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), ""]);
+    const newEventStorageObject = {
+      chainId: chainId.toString(),
+      event: "Unlock",
+      functionName: "unlock()",
+      tokenNativeAddress: tokenNativeAddress.toString(),
+      receiverOrOwnerAddress: receiver.toString(),
+      amount:amount.toString()
+    };
+    eventsList.push(newEventStorageObject);
     localStorage.setItem('eventsList', JSON.stringify(eventsList));
     setEventsList(eventsList);
   };
@@ -61,20 +71,48 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   const lockHandler = (tokenNativeAddress, receiver, amount, nonce, tx) => {
     // console.log(tx);
-    eventsList.push([chainId.toString(), "lock()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), nonce.toString()]);
+    const newEventStorageObject = {
+      chainId: chainId.toString(),
+      event: "Lock",
+      functionName: "lock()",
+      tokenNativeAddress: tokenNativeAddress.toString(),
+      receiverOrOwnerAddress: receiver.toString(),
+      amount:amount.toString(),
+      nonce: nonce.toString(),
+    };
+    eventsList.push(newEventStorageObject);
     localStorage.setItem('eventsList', JSON.stringify(eventsList));
     setEventsList(eventsList);
   };
 
   const burnHandler = (tokenNativeAddress, receiver, amount, wrappedTokenAddress, nonce, tx) => {
-    eventsList.push([chainId.toString(), "burn()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), nonce.toString()]);
+    const newEventStorageObject = {
+      chainId: chainId.toString(),
+      event: "Burn",
+      functionName: "burn()",
+      tokenNativeAddress: tokenNativeAddress.toString(),
+      receiverOrOwnerAddress: receiver.toString(),
+      amount:amount.toString(),
+      nonce: nonce.toString(),
+      wrappedTokenAddress: wrappedTokenAddress.toString()
+    };
+    eventsList.push(newEventStorageObject);
     localStorage.setItem('eventsList', JSON.stringify(eventsList));
     setEventsList(eventsList);
   };
 
   const mintHandler = (tokenNativeAddress, receiver, amount, wrappedTokenAddress, tx) => {
     // console.log(tx);
-    eventsList.push([chainId.toString(), "mint()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), ""]);
+    const newEventStorageObject = {
+      chainId: chainId.toString(),
+      event: "Mint",
+      functionName: "mint()",
+      tokenNativeAddress: tokenNativeAddress.toString(),
+      receiverOrOwnerAddress: receiver.toString(),
+      amount:amount.toString(),
+      wrappedTokenAddress: wrappedTokenAddress.toString()
+    };
+    eventsList.push(newEventStorageObject);
     localStorage.setItem('eventsList', JSON.stringify(eventsList));
     setEventsList(eventsList);
   };
@@ -82,10 +120,11 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const setEventsList = (list) => {
     const newListJSON = JSON.stringify(list);
     const newList = JSON.parse(newListJSON);
+    console.log(newList);
     newList.reverse();
 
     const eventsArray = newList.map((element, index) => (
-      index + ": " + "Chain: " + element[0] + " Event: " + element[1] + " - tokenAddress: " + element[2] + " - receiver: " + element[3] + " - amount: " + element[4] + " nonce: " + element[5]
+      index + ": " + "Chain: " + element.chainId + " Event: " + element.event + " Function Name: " + element.functionName + " - nativeTokenAddress: " + element.tokenNativeAddress + " - receiver/owner: " + element.receiverOrOwnerAddress + " - amount: " + element.amount + " nonce: " + element.nonce + " wrappedTokenAddress: " + element.wrappedTokenAddress
       ))
       const eventsString = eventsArray.join('\n')
       // console.log(eventsString);
