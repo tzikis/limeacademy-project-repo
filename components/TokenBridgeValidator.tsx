@@ -69,9 +69,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
       receiverOrOwnerAddress: receiver.toString(),
       amount:amount.toString()
     };
-    eventsHistory.push(newEventStorageObject);
-    localStorage.setItem('eventsHistory', JSON.stringify(eventsHistory));
-    setEventsHistory(eventsHistory);
+    addEventToHistory(newEventStorageObject);
   };
 
 
@@ -86,9 +84,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
       amount:amount.toString(),
       nonce: nonce.toString(),
     };
-    eventsHistory.push(newEventStorageObject);
-    localStorage.setItem('eventsHistory', JSON.stringify(eventsHistory));
-    setEventsHistory(eventsHistory);
+    addEventToHistory(newEventStorageObject);
   };
 
   const burnHandler = (targetChainId, tokenNativeAddress, receiver, amount, wrappedTokenAddress, nonce, tx) => {
@@ -102,9 +98,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
       nonce: nonce.toString(),
       wrappedTokenAddress: wrappedTokenAddress.toString()
     };
-    eventsHistory.push(newEventStorageObject);
-    localStorage.setItem('eventsHistory', JSON.stringify(eventsHistory));
-    setEventsHistory(eventsHistory);
+    addEventToHistory(newEventStorageObject);
   };
 
   const mintHandler = (targetChainId, tokenNativeAddress, receiver, amount, wrappedTokenAddress, tx) => {
@@ -118,10 +112,31 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
       amount:amount.toString(),
       wrappedTokenAddress: wrappedTokenAddress.toString()
     };
-    eventsHistory.push(newEventStorageObject);
+    addEventToHistory(newEventStorageObject);
+  };
+
+  const addEventToHistory = (newEvent) => {
+
+    // We really shouldn't be doing this, but the event handlers are called twice when they shouldn't. sigh..
+    for (var j = 0; j < eventsHistory.length; j++) {      
+      if(
+        newEvent.chainId == eventsHistory[j].chainId && 
+        newEvent.event == eventsHistory[j].event && 
+        newEvent.functionName == eventsHistory[j].functionName && 
+        newEvent.tokenNativeAddress == eventsHistory[j].tokenNativeAddress && 
+        newEvent.receiverOrOwnerAddress == eventsHistory[j].receiverOrOwnerAddress && 
+        newEvent.amount == eventsHistory[j].amount &&
+        newEvent.nonce == eventsHistory[j].nonce &&
+        newEvent.wrappedTokenAddress == eventsHistory[j].wrappedTokenAddress
+        ){
+        return;
+      }
+    }
+
+    eventsHistory.push(newEvent);
     localStorage.setItem('eventsHistory', JSON.stringify(eventsHistory));
     setEventsHistory(eventsHistory);
-  };
+  }
 
   const setEventsHistory = (list) => {
     const newListJSON = JSON.stringify(list);

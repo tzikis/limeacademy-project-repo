@@ -82,9 +82,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       receiverOrOwnerAddress: receiver.toString(),
       amount:amount.toString()
     };
-    eventsList.push(newEventStorageObject);
-    localStorage.setItem(eventsListKey, JSON.stringify(eventsList));
-    setEventsList(eventsList);
+    addEventToList(newEventStorageObject);
   };
 
 
@@ -99,9 +97,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       amount:amount.toString(),
       nonce: nonce.toString(),
     };
-    eventsList.push(newEventStorageObject);
-    localStorage.setItem(eventsListKey, JSON.stringify(eventsList));
-    setEventsList(eventsList);
+    addEventToList(newEventStorageObject);
   };
 
   const burnHandler = (targetChainId, tokenNativeAddress, receiver, amount, wrappedTokenAddress, nonce, tx) => {
@@ -115,9 +111,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       nonce: nonce.toString(),
       wrappedTokenAddress: wrappedTokenAddress.toString()
     };
-    eventsList.push(newEventStorageObject);
-    localStorage.setItem(eventsListKey, JSON.stringify(eventsList));
-    setEventsList(eventsList);
+    addEventToList(newEventStorageObject);
   };
 
   const mintHandler = (targetChainId, tokenNativeAddress, receiver, amount, wrappedTokenAddress, tx) => {
@@ -131,10 +125,31 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       amount:amount.toString(),
       wrappedTokenAddress: wrappedTokenAddress.toString()
     };
-    eventsList.push(newEventStorageObject);
+    addEventToList(newEventStorageObject);
+  };
+
+  const addEventToList = (newEvent) => {
+
+    // We really shouldn't be doing this, but the event handlers are called twice when they shouldn't. sigh..
+    for (var j = 0; j < eventsList.length; j++) {      
+      if(
+        newEvent.chainId == eventsList[j].chainId && 
+        newEvent.event == eventsList[j].event && 
+        newEvent.functionName == eventsList[j].functionName && 
+        newEvent.tokenNativeAddress == eventsList[j].tokenNativeAddress && 
+        newEvent.receiverOrOwnerAddress == eventsList[j].receiverOrOwnerAddress && 
+        newEvent.amount == eventsList[j].amount &&
+        newEvent.nonce == eventsList[j].nonce &&
+        newEvent.wrappedTokenAddress == eventsList[j].wrappedTokenAddress
+        ){
+        return;
+      }
+    }
+
+    eventsList.push(newEvent);
     localStorage.setItem(eventsListKey, JSON.stringify(eventsList));
     setEventsList(eventsList);
-  };
+  }
 
   const setEventsList = (list) => {
     const newListJSON = JSON.stringify(list);
@@ -148,7 +163,6 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       // console.log(eventsString);
 
       setEventsListString(eventsString);
-
 
   }
 
