@@ -3,6 +3,9 @@ import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
 import useTokenBridgeContract from "../hooks/useTokenBridgeContract";
 
+import { TOKEN_BRIDGE_ADDRESSES } from "../constants";
+import Select from 'react-select';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { splitSignature } from "@ethersproject/bytes";
 import { formatBytes32String } from "ethers/lib/utils";
@@ -25,7 +28,9 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   const [tokenContractAddress, setTokenContractAddress] = useState<number>(0);
   const [tokenAmount, setTokenAmount] = useState<string>('');
+
   const [targetChainId, setTargetChainId] = useState<string>('');
+  const [chainIdOptions, setChainIdOptions] = useState<Object[]>([]);
   
   const [lockNonce, setLockNonce] = useState<string>('');
   const [lockValidationSignature, setLockValidationSignature] = useState<string>('');
@@ -39,6 +44,15 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   useEffect(() => {
     // console.log("Chain id: " + chainId + " and wallet address: " + account);
+
+    let arrayOfNetworks = [];
+    for (const key in TOKEN_BRIDGE_ADDRESSES) {
+      if(TOKEN_BRIDGE_ADDRESSES[key]["id"] != chainId){
+        arrayOfNetworks.push({label: TOKEN_BRIDGE_ADDRESSES[key]["network"], value: TOKEN_BRIDGE_ADDRESSES[key]["id"]})
+      }
+  }
+    setChainIdOptions(arrayOfNetworks);
+    setTargetChainId(null);
 
     eventsListKey = 'eventsList-' + chainId + "-" + account;
     const eventsListStorage = localStorage.getItem(eventsListKey);
@@ -147,7 +161,8 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   }
 
   const targetChainChanged = (input) => {
-    setTargetChainId(input.target.value)
+    // console.log("Target chain changed: " + input);
+    setTargetChainId(input.value)
   }
 
   const lockNonceChanged = (input) => {
@@ -201,7 +216,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       // const signatureLike = await generateValidation("burn()", tokenContractAddress, account, tokenAmount, burnNonce);
       // const signature = await splitSignature(signatureLike);
       const signature = await splitSignature(burnValidationSignature);
-      const tx = await tokenBridgeContract.unlock(targetChainId, tokenContractAddress, account, tokenAmount, burnNonce, signature.v, signature.r, signature.s);
+      const tx = await tokenBridgeContract.unlock(chainId, tokenContractAddress, account, tokenAmount, burnNonce, signature.v, signature.r, signature.s);
 
       setTxHash(tx.hash);
       setTransactionPending(1);
@@ -226,7 +241,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       // const signatureLike = await generateValidation("lock()", tokenContractAddress, account, tokenAmount, lockNonce);
       // const signature = await splitSignature(signatureLike);
       const signature = await splitSignature(lockValidationSignature);
-      const tx = await tokenBridgeContract.mint(targetChainId, tokenContractAddress, account, tokenAmount, lockNonce, wrappedTokenInfo, signature.v, signature.r, signature.s);
+      const tx = await tokenBridgeContract.mint(chainId, tokenContractAddress, account, tokenAmount, lockNonce, wrappedTokenInfo, signature.v, signature.r, signature.s);
 
       setTxHash(tx.hash);
       setTransactionPending(1);
@@ -271,11 +286,19 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
         <input onChange={tokenContractAddressChanged} value={tokenContractAddress} type="text" name="token_contract_address" />
         &nbsp;Amount:
         <input onChange={tokenAmountChanged} value={tokenAmount} type="number" name="token_amount" />
-        &nbsp;Chain ID:
-        <input onChange={targetChainChanged} value={targetChainId} type="number" name="target_chain" />
       </label>
+      <div className="chain Id">
+      </div>
       <h3>Native</h3>
       <div className="button-wrapper">
+        <label>
+          Chain ID: 
+        </label>
+        &nbsp;
+        <div style={{width:300, display:"inline-block"}}>
+          <Select  placeholder="Please select target network" value={targetChainId==null? null: chainIdOptions} onChange={targetChainChanged} options={chainIdOptions}/>
+        </div>
+        &nbsp;
         <button onClick={submitLockTokens}>Lock Tokens</button> &nbsp;
       </div>
       <div className="button-wrapper">
@@ -302,6 +325,14 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
         <button onClick={submitMintTokens}>Mint Tokens</button>
       </div>
       <div className="button-wrapper">
+        <label>
+          Chain ID: 
+        </label>
+        &nbsp;
+        <div style={{width:300, display:"inline-block"}}>
+          <Select  placeholder="Please select target network" value={targetChainId==null? null: chainIdOptions} onChange={targetChainChanged} options={chainIdOptions}/>
+        </div>
+        &nbsp;
         <button onClick={submitBurnTokens}>Burn Tokens</button>
       </div>
       <p>{warningMessage}</p>
