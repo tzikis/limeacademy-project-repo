@@ -21,6 +21,13 @@ import { Contract } from "@ethersproject/contracts";
 // import { useWeb3React } from "@web3-react/core";
 import { useMemo } from "react";
 
+
+var tokenAddressesStorageKey;
+var tokenNamesStorageKey;
+var tokenSymbolsStorageKey;
+var tokenBalancesStorageKey;
+var tokenAllowancesStorageKey;
+
 function Home() {
   const { library, account, chainId } = useWeb3React();
 
@@ -46,6 +53,17 @@ function Home() {
   const [warningMessage, setWarningMessage] = useState<string>('');
   const [transactionPending, setTransactionPending] = useState<number>(0);
   const [txHash, setTxHash] = useState<string>('Unknown');
+
+  useEffect(() => {
+    console.log("Chain id: " + chainId + " and wallet address: " + account);
+
+    tokenAddressesStorageKey = 'myTokenAddresses-' + chainId + "-" + account;
+    tokenNamesStorageKey = 'myTokenNames-' + chainId + "-" + account;
+    tokenSymbolsStorageKey = 'myTokenSymbols-' + chainId + "-" + account;
+    tokenBalancesStorageKey = 'myTokenBalances-' + chainId + "-" + account;
+    tokenAllowancesStorageKey = 'myTokenAllowances-' + chainId + "-" + account;
+    getPreviousTokensList();
+  },[chainId, account])
 
   const setInformUser = (newStatus, newStatusMessage) => {
     setTokenAdditionStatus(newStatus);
@@ -190,24 +208,30 @@ function Home() {
     setTokenBalancesList(newTokenBalancesList);
     setTokenAllowancesList(newTokenAllowancesList);
 
-    localStorage.setItem('myTokenAddresses', JSON.stringify(newTokenAddressList));
-    localStorage.setItem('myTokenNames', JSON.stringify(newTokenNamesList));
-    localStorage.setItem('myTokenSymbols', JSON.stringify(newTokenSymbolsList));
-    localStorage.setItem('myTokenBalances', JSON.stringify(newTokenBalancesList));
-    localStorage.setItem('myTokenAllowances', JSON.stringify(newTokenAllowancesList));
+    localStorage.setItem(tokenAddressesStorageKey, JSON.stringify(newTokenAddressList));
+    localStorage.setItem(tokenNamesStorageKey, JSON.stringify(newTokenNamesList));
+    localStorage.setItem(tokenSymbolsStorageKey, JSON.stringify(newTokenSymbolsList));
+    localStorage.setItem(tokenBalancesStorageKey, JSON.stringify(newTokenBalancesList));
+    localStorage.setItem(tokenAllowancesStorageKey, JSON.stringify(newTokenAllowancesList));
   }
 
   const getPreviousTokensList = async () => {
     setInformUser(1, "Loading previous token list. Please Wait.");
+    // await new Promise(r => setTimeout(r, 2000)); 
 
-    const tokenAddresssesStorageVal = localStorage.getItem('myTokenAddresses');
-    const tokenNamesStorageVal = localStorage.getItem('myTokenNames');
-    const tokenSymbolsStorageVal = localStorage.getItem('myTokenSymbols');
-    const tokenBalancesStorageVal = localStorage.getItem('myTokenBalances');
-    const tokenAllowancesStorageVal = localStorage.getItem('myTokenAllowances');
+    const tokenAddresssesStorageVal = localStorage.getItem(tokenAddressesStorageKey);
+    const tokenNamesStorageVal = localStorage.getItem(tokenNamesStorageKey);
+    const tokenSymbolsStorageVal = localStorage.getItem(tokenSymbolsStorageKey);
+    const tokenBalancesStorageVal = localStorage.getItem(tokenBalancesStorageKey);
+    const tokenAllowancesStorageVal = localStorage.getItem(tokenAllowancesStorageKey);
 
     // If they are all null, we haven't saved anything, so we just move on.
     if (tokenNamesStorageVal == null && tokenNamesStorageVal == null && tokenSymbolsStorageVal == null && tokenBalancesStorageVal == null && tokenAllowancesStorageVal == null) {
+      setTokensList([]);
+      setTokenNamesList([]);
+      setTokenSymbolsList([]);
+      setTokenBalancesList([]);
+      setTokenAllowancesList([]);
       setInformUser(0, "");
       return;
     }
@@ -220,13 +244,10 @@ function Home() {
     }
 
     const previousTokenAddressList = JSON.parse(tokenAddresssesStorageVal);
-    setTokensList(previousTokenAddressList);
 
     const previousTokenNamesList = JSON.parse(tokenNamesStorageVal);
-    setTokenNamesList(previousTokenNamesList);
 
     const previousTokenSymbolsList = JSON.parse(tokenSymbolsStorageVal);
-    setTokenSymbolsList(previousTokenSymbolsList);
 
     const previousTokenBalancesList = JSON.parse(tokenBalancesStorageVal);
 
@@ -239,8 +260,6 @@ function Home() {
         previousTokenBalancesList[j] = newBalance.toString();
     }
 
-    setTokenBalancesList(previousTokenBalancesList);
-
     const previousTokenAllowancesList = JSON.parse(tokenAllowancesStorageVal);
 
     // updateTokenBalances();
@@ -252,6 +271,10 @@ function Home() {
         previousTokenAllowancesList[j] = newAllowance.toString();
     }
 
+    setTokensList(previousTokenAddressList);
+    setTokenNamesList(previousTokenNamesList);
+    setTokenSymbolsList(previousTokenSymbolsList);
+    setTokenBalancesList(previousTokenBalancesList);
     setTokenAllowancesList(previousTokenAllowancesList);
 
     setInformUser(0, "");
@@ -268,7 +291,7 @@ function Home() {
     }
 
     setTokenBalancesList(newTokenBalances);
-    localStorage.setItem('myTokenBalances', JSON.stringify(newTokenBalances));
+    localStorage.setItem(tokenBalancesStorageKey, JSON.stringify(newTokenBalances));
     setInformUser(0, "");
   }
 
@@ -300,7 +323,7 @@ function Home() {
     }
 
     setTokenAllowancesList(newTokenAllowances);
-    localStorage.setItem('myTokenAllowances', JSON.stringify(newTokenAllowances));
+    localStorage.setItem(tokenAllowancesStorageKey, JSON.stringify(newTokenAllowances));
     setInformUser(0, "");
   }
 
@@ -364,9 +387,8 @@ function Home() {
     return tokenBalance;
   }
 
-  useEffect(() => {
-    getPreviousTokensList();
-  }, [])
+  // useEffect(() => {
+  // }, [])
 
   return (
     <div>
