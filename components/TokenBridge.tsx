@@ -25,7 +25,8 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   const [tokenContractAddress, setTokenContractAddress] = useState<number>(0);
   const [tokenAmount, setTokenAmount] = useState<string>('');
-
+  const [targetChainId, setTargetChainId] = useState<string>('');
+  
   const [lockNonce, setLockNonce] = useState<string>('');
   const [burnNonce, setBurnNonce] = useState<string>('');
 
@@ -55,10 +56,10 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     tokenBridgeContract.on('Burn', burnHandler);
   }, [])
 
-  const unlockHandler = (tokenNativeAddress, receiver, amount, tx) => {
+  const unlockHandler = (targetChainId, tokenNativeAddress, receiver, amount, tx) => {
     // console.log(tx);
     const newEventStorageObject = {
-      chainId: chainId.toString(),
+      chainId: targetChainId.toString(),
       event: "Unlock",
       functionName: "unlock()",
       tokenNativeAddress: tokenNativeAddress.toString(),
@@ -71,10 +72,10 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   };
 
 
-  const lockHandler = (tokenNativeAddress, receiver, amount, nonce, tx) => {
+  const lockHandler = (targetChainId, tokenNativeAddress, receiver, amount, nonce, tx) => {
     // console.log(tx);
     const newEventStorageObject = {
-      chainId: chainId.toString(),
+      chainId: targetChainId.toString(),
       event: "Lock",
       functionName: "lock()",
       tokenNativeAddress: tokenNativeAddress.toString(),
@@ -87,9 +88,9 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     setEventsList(eventsList);
   };
 
-  const burnHandler = (tokenNativeAddress, receiver, amount, wrappedTokenAddress, nonce, tx) => {
+  const burnHandler = (targetChainId, tokenNativeAddress, receiver, amount, wrappedTokenAddress, nonce, tx) => {
     const newEventStorageObject = {
-      chainId: chainId.toString(),
+      chainId: targetChainId.toString(),
       event: "Burn",
       functionName: "burn()",
       tokenNativeAddress: tokenNativeAddress.toString(),
@@ -103,10 +104,10 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     setEventsList(eventsList);
   };
 
-  const mintHandler = (tokenNativeAddress, receiver, amount, wrappedTokenAddress, tx) => {
+  const mintHandler = (targetChainId, tokenNativeAddress, receiver, amount, wrappedTokenAddress, tx) => {
     // console.log(tx);
     const newEventStorageObject = {
-      chainId: chainId.toString(),
+      chainId: targetChainId.toString(),
       event: "Mint",
       functionName: "mint()",
       tokenNativeAddress: tokenNativeAddress.toString(),
@@ -125,7 +126,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     newList.reverse();
 
     const eventsArray = newList.map((element, index) => (
-      index + ": " + "Chain: " + element.chainId + " Event: " + element.event + " Function Name: " + element.functionName + " - nativeTokenAddress: " + element.tokenNativeAddress + " - receiver/owner: " + element.receiverOrOwnerAddress + " - amount: " + element.amount + " nonce: " + element.nonce + " wrappedTokenAddress: " + element.wrappedTokenAddress
+      index + ": " + "Target Chain: " + element.chainId + " Event: " + element.event + " Function Name: " + element.functionName + " - nativeTokenAddress: " + element.tokenNativeAddress + " - receiver/owner: " + element.receiverOrOwnerAddress + " - amount: " + element.amount + " nonce: " + element.nonce + " wrappedTokenAddress: " + element.wrappedTokenAddress
       ))
       const eventsString = eventsArray.join('\n')
       // console.log(eventsString);
@@ -141,6 +142,10 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   const tokenAmountChanged = (input) => {
     setTokenAmount(input.target.value)
+  }
+
+  const targetChainChanged = (input) => {
+    setTargetChainId(input.target.value)
   }
 
   const lockNonceChanged = (input) => {
@@ -165,7 +170,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     try {
       // const tx = await tokenBridgeContract.estimateGas.lock("01", lockTokenContractAddress, lockTokenAmount);
       // const tx = await tokenBridgeContract.lock("01", lockTokenContractAddress, lockTokenAmount);
-      const tx = await tokenBridgeContract.lock(tokenContractAddress, tokenAmount);
+      const tx = await tokenBridgeContract.lock(targetChainId, tokenContractAddress, tokenAmount);
 
       setTxHash(tx.hash);
       setTransactionPending(1);
@@ -187,7 +192,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       // const signatureLike = await generateValidation("burn()", tokenContractAddress, account, tokenAmount, burnNonce);
       // const signature = await splitSignature(signatureLike);
       const signature = await splitSignature(burnValidationSignature);
-      const tx = await tokenBridgeContract.unlock(tokenContractAddress, account, tokenAmount, burnNonce, signature.v, signature.r, signature.s);
+      const tx = await tokenBridgeContract.unlock(targetChainId, tokenContractAddress, account, tokenAmount, burnNonce, signature.v, signature.r, signature.s);
 
       setTxHash(tx.hash);
       setTransactionPending(1);
@@ -212,7 +217,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       // const signatureLike = await generateValidation("lock()", tokenContractAddress, account, tokenAmount, lockNonce);
       // const signature = await splitSignature(signatureLike);
       const signature = await splitSignature(lockValidationSignature);
-      const tx = await tokenBridgeContract.mint(tokenContractAddress, account, tokenAmount, lockNonce, wrappedTokenInfo, signature.v, signature.r, signature.s);
+      const tx = await tokenBridgeContract.mint(targetChainId, tokenContractAddress, account, tokenAmount, lockNonce, wrappedTokenInfo, signature.v, signature.r, signature.s);
 
       setTxHash(tx.hash);
       setTransactionPending(1);
@@ -231,7 +236,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   const submitBurnTokens = async () => {
     try {
-      const tx = await tokenBridgeContract.burn(tokenContractAddress, tokenAmount);
+      const tx = await tokenBridgeContract.burn(targetChainId, tokenContractAddress, tokenAmount);
 
       setTxHash(tx.hash);
       setTransactionPending(1);
@@ -254,9 +259,11 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       <h3>Common</h3>
       <label>
         Token Address:
-        <input onChange={tokenContractAddressChanged} value={tokenContractAddress} type="text" name="lock_token_contract_address" />
+        <input onChange={tokenContractAddressChanged} value={tokenContractAddress} type="text" name="token_contract_address" />
         &nbsp;Amount:
-        <input onChange={tokenAmountChanged} value={tokenAmount} type="number" name="lock_token_amount" />
+        <input onChange={tokenAmountChanged} value={tokenAmount} type="number" name="token_amount" />
+        &nbsp;Chain ID:
+        <input onChange={targetChainChanged} value={targetChainId} type="number" name="target_chain" />
       </label>
       <h3>Native</h3>
       <div className="button-wrapper">

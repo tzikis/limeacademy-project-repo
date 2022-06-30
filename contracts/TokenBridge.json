@@ -9,6 +9,12 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "_targetChain",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "_tokenNativeAddress",
         "type": "address"
@@ -46,26 +52,32 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "_targetChain",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
         "internalType": "address",
-        "name": "token",
+        "name": "_token",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "address",
-        "name": "owner",
+        "name": "_owner",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint32",
-        "name": "amount",
+        "name": "_amount",
         "type": "uint32"
       },
       {
         "indexed": false,
         "internalType": "uint32",
-        "name": "nonce",
+        "name": "_nonce",
         "type": "uint32"
       }
     ],
@@ -75,6 +87,12 @@
   {
     "anonymous": false,
     "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_targetChain",
+        "type": "uint256"
+      },
       {
         "indexed": false,
         "internalType": "address",
@@ -107,40 +125,27 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_targetChain",
+        "type": "uint256"
       },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
       {
         "indexed": false,
         "internalType": "address",
-        "name": "token",
+        "name": "_token",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "address",
-        "name": "owner",
+        "name": "_owner",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint32",
-        "name": "amount",
+        "name": "_amount",
         "type": "uint32"
       }
     ],
@@ -176,8 +181,13 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "targetChain",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
-        "name": "tokenNativeAddress",
+        "name": "tokenWrappedAddress",
         "type": "address"
       },
       {
@@ -222,7 +232,25 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getChainID",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "targetChain",
+        "type": "uint256"
+      },
       {
         "internalType": "address",
         "name": "tokenAddress",
@@ -296,6 +324,11 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "targetChain",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
         "name": "tokenNativeAddress",
         "type": "address"
@@ -351,11 +384,6 @@
     "name": "mint",
     "outputs": [
       {
-        "internalType": "bool",
-        "name": "success",
-        "type": "bool"
-      },
-      {
         "internalType": "bytes",
         "name": "result",
         "type": "bytes"
@@ -402,27 +430,12 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+        "internalType": "uint256",
+        "name": "targetChain",
+        "type": "uint256"
+      },
       {
         "internalType": "address",
         "name": "tokenAddress",
@@ -507,6 +520,11 @@
         "type": "string"
       },
       {
+        "internalType": "uint256",
+        "name": "chainId",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
         "name": "tokenAddress",
         "type": "address"
@@ -543,6 +561,25 @@
       }
     ],
     "name": "verify",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "wrappedToNativeTokenAddresses",
     "outputs": [
       {
         "internalType": "address",

@@ -15,6 +15,8 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
   const { account, library, chainId } = useWeb3React<Web3Provider>();
   const tokenBridgeContract = useTokenBridgeContract(contractAddress);
 
+  const [targetChainId, setTargetChainId] = useState<string>('');
+
   const [tokenContractAddress, setTokenContractAddress] = useState<number>(0);
   const [tokenAmount, setTokenAmount] = useState<string>('');
 
@@ -57,10 +59,10 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
     tokenBridgeContract.on('Burn', burnHandler);
   }, [])
 
-  const unlockHandler = (tokenNativeAddress, receiver, amount, tx) => {
+  const unlockHandler = (targetChainId, tokenNativeAddress, receiver, amount, tx) => {
     // console.log(tx);
     const newEventStorageObject = {
-      chainId: chainId.toString(),
+      chainId: targetChainId.toString(),
       event: "Unlock",
       functionName: "unlock()",
       tokenNativeAddress: tokenNativeAddress.toString(),
@@ -73,10 +75,10 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
   };
 
 
-  const lockHandler = (tokenNativeAddress, receiver, amount, nonce, tx) => {
+  const lockHandler = (targetChainId, tokenNativeAddress, receiver, amount, nonce, tx) => {
     // console.log(tx);
     const newEventStorageObject = {
-      chainId: chainId.toString(),
+      chainId: targetChainId.toString(),
       event: "Lock",
       functionName: "lock()",
       tokenNativeAddress: tokenNativeAddress.toString(),
@@ -89,9 +91,9 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
     setEventsHistory(eventsHistory);
   };
 
-  const burnHandler = (tokenNativeAddress, receiver, amount, wrappedTokenAddress, nonce, tx) => {
+  const burnHandler = (targetChainId, tokenNativeAddress, receiver, amount, wrappedTokenAddress, nonce, tx) => {
     const newEventStorageObject = {
-      chainId: chainId.toString(),
+      chainId: targetChainId.toString(),
       event: "Burn",
       functionName: "burn()",
       tokenNativeAddress: tokenNativeAddress.toString(),
@@ -105,10 +107,10 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
     setEventsHistory(eventsHistory);
   };
 
-  const mintHandler = (tokenNativeAddress, receiver, amount, wrappedTokenAddress, tx) => {
+  const mintHandler = (targetChainId, tokenNativeAddress, receiver, amount, wrappedTokenAddress, tx) => {
     // console.log(tx);
     const newEventStorageObject = {
-      chainId: chainId.toString(),
+      chainId: targetChainId.toString(),
       event: "Mint",
       functionName: "mint()",
       tokenNativeAddress: tokenNativeAddress.toString(),
@@ -127,7 +129,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
     newList.reverse();
 
     const eventsArray = newList.map((element, index) => (
-      index + ": " + "Chain: " + element.chainId + " Event: " + element.event + " Function Name: " + element.functionName + " - nativeTokenAddress: " + element.tokenNativeAddress + " - receiver/owner: " + element.receiverOrOwnerAddress + " - amount: " + element.amount + " nonce: " + element.nonce + " wrappedTokenAddress: " + element.wrappedTokenAddress + " signature: " + element.signature
+      index + ": " + "Target Chain: " + element.chainId + " Event: " + element.event + " Function Name: " + element.functionName + " - nativeTokenAddress: " + element.tokenNativeAddress + " - receiver/owner: " + element.receiverOrOwnerAddress + " - amount: " + element.amount + " nonce: " + element.nonce + " wrappedTokenAddress: " + element.wrappedTokenAddress + " signature: " + element.signature
       ))
       const eventsString = eventsArray.join('\n')
       // console.log(eventsString);
@@ -136,6 +138,11 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
 
 
   }
+
+  const targetChainChanged = (input) => {
+    setTargetChainId(input.target.value)
+  }
+
   const tokenContractAddressChanged = (input) => {
     setTokenContractAddress(input.target.value)
   }
@@ -153,24 +160,24 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
   }
   
 const generateLockValidation = async() => {
-  const valSig = await generateValidation("lock()", tokenContractAddress, receiverAddress, tokenAmount, nonce);
+  const valSig = await generateValidation("lock()", targetChainId, tokenContractAddress, receiverAddress, tokenAmount, nonce);
   updateHistory("lock()", tokenContractAddress, receiverAddress, tokenAmount, nonce, valSig)
   setValidationSignature(valSig);
 }
 
 const generateBurnValidation = async() => {
-  const valSig = await generateValidation("burn()", tokenContractAddress, receiverAddress, tokenAmount, nonce);
+  const valSig = await generateValidation("burn()", targetChainId, tokenContractAddress, receiverAddress, tokenAmount, nonce);
   updateHistory("burn()", tokenContractAddress, receiverAddress, tokenAmount, nonce, valSig)
   setValidationSignature(valSig);
 }
 
 const testLockValidation = async() => {
-  const valSig = await generateValidation("lock()", tokenContractAddress, receiverAddress, tokenAmount, nonce);
+  const valSig = await generateValidation("lock()", targetChainId, tokenContractAddress, receiverAddress, tokenAmount, nonce);
   try {
     const signature = await splitSignature(valSig);
     // setTransactionPending(1);
     // setWarningMessage("Unlocking token in Token Bridge Contract.");
-    const response = await tokenBridgeContract.verify("lock()", tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
+    const response = await tokenBridgeContract.verify("lock()", targetChainId, tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
     // setWarningMessage("Unlocking from Token Bridge Contract was successful.");
     // setTransactionPending(2);
     setValidationSignature(valSig);
@@ -185,12 +192,12 @@ const testLockValidation = async() => {
 }
 
 const testBurnValidation = async() => {
-  const valSig = await generateValidation("burn()", tokenContractAddress, receiverAddress, tokenAmount, nonce);
+  const valSig = await generateValidation("burn()", targetChainId, tokenContractAddress, receiverAddress, tokenAmount, nonce);
   try {
     const signature = await splitSignature(valSig);
     // setTransactionPending(1);
     // setWarningMessage("Unlocking token in Token Bridge Contract.");
-    const response = await tokenBridgeContract.verify("burn()", tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
+    const response = await tokenBridgeContract.verify("burn()", targetChainId, tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
     // setWarningMessage("Unlocking from Token Bridge Contract was successful.");
     // setTransactionPending(2);
     setValidationSignature(valSig);
@@ -225,7 +232,7 @@ const updateHistory = (functionName, tokenContractAddress, receiverAccount, toke
 
 }
 
-const generateValidation = async (functionName, tokenAddress, receiverAddress, amount, nonce) => {
+const generateValidation = async (functionName, targetChainId, tokenAddress, receiverAddress, amount, nonce) => {
   // Account here is the wallet address
   // const nonce = (await tokenBridgeContract.nonces(tokenContractAddress)); // Our Token Contract Nonces
   
@@ -243,6 +250,7 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
 
   const Verify = [ // array of objects -> properties from erc20withpermit
       { name: 'functionName', type: 'string' },
+      { name: 'chainId', type: 'uint256' },
       { name: 'tokenAddress', type: 'address' },
       { name: 'receiverAddress', type: 'address' },
       { name: 'amount', type: 'uint32' },
@@ -251,6 +259,7 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
 
   const message = {
       functionName: functionName, // Wallet Address
+      chainId: targetChainId,
       tokenAddress: tokenAddress, // This is the address of the contract.
       receiverAddress: receiverAddress, // This is the address of the spender whe want to give permit to.
       amount: amount,
@@ -277,7 +286,9 @@ const generateValidation = async (functionName, tokenAddress, receiverAddress, a
         <h2>Validator</h2>
         <h3>Generate Validations</h3>
         <label>
-          Token Address:
+          Target Chain ID:
+          <input onChange={targetChainChanged} value={targetChainId} type="number" name="target_chain" />
+          Native Token Address:
           <input onChange={tokenContractAddressChanged} value={tokenContractAddress} type="text" name="validator_token_contract_address" />
           Token Owner/Receiver Address:
             <input onChange={receiverAddressChanged} value={receiverAddress} type="text" name="validator_token_receiver_owner_address" />
