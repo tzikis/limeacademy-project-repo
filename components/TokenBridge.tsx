@@ -14,6 +14,7 @@ type TokenBridge = {
 };
 
 var eventsList: any = [];
+var eventsListKey;
 
 const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const { account, library, chainId } = useWeb3React<Web3Provider>();
@@ -34,19 +35,20 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   const [eventsListString, setEventsListString] = useState<string>('');
 
-  // useEffect(() => {
-  //   console.log(chainId);
-  // },[chainId])
-
   useEffect(() => {
-    const eventsListStorage = localStorage.getItem('eventsList')
+    // console.log("Chain id: " + chainId + " and wallet address: " + account);
+
+    eventsListKey = 'eventsList-' + chainId + "-" + account;
+    const eventsListStorage = localStorage.getItem(eventsListKey);
     if(eventsListStorage != null)
       eventsList = JSON.parse(eventsListStorage);
     else
       eventsList = [];
 
     setEventsList(eventsList);
+  },[chainId, account])
 
+  useEffect(() => {
     tokenBridgeContract.on('Lock', lockHandler);
     tokenBridgeContract.on('Unlock', unlockHandler);
     tokenBridgeContract.on('Mint', mintHandler);
@@ -64,7 +66,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       amount:amount.toString()
     };
     eventsList.push(newEventStorageObject);
-    localStorage.setItem('eventsList', JSON.stringify(eventsList));
+    localStorage.setItem(eventsListKey, JSON.stringify(eventsList));
     setEventsList(eventsList);
   };
 
@@ -81,7 +83,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       nonce: nonce.toString(),
     };
     eventsList.push(newEventStorageObject);
-    localStorage.setItem('eventsList', JSON.stringify(eventsList));
+    localStorage.setItem(eventsListKey, JSON.stringify(eventsList));
     setEventsList(eventsList);
   };
 
@@ -97,7 +99,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       wrappedTokenAddress: wrappedTokenAddress.toString()
     };
     eventsList.push(newEventStorageObject);
-    localStorage.setItem('eventsList', JSON.stringify(eventsList));
+    localStorage.setItem(eventsListKey, JSON.stringify(eventsList));
     setEventsList(eventsList);
   };
 
@@ -113,7 +115,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       wrappedTokenAddress: wrappedTokenAddress.toString()
     };
     eventsList.push(newEventStorageObject);
-    localStorage.setItem('eventsList', JSON.stringify(eventsList));
+    localStorage.setItem(eventsListKey, JSON.stringify(eventsList));
     setEventsList(eventsList);
   };
 
