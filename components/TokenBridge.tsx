@@ -66,14 +66,13 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     setEventsList(eventsList);
   };
 
-  //TODO: Change order of receiver and amount if we change the contract?
-  const burnHandler = (tokenNativeAddress, amount, receiver, nonce, tx) => {
+  const burnHandler = (tokenNativeAddress, receiver, amount, wrappedTokenAddress, nonce, tx) => {
     eventsList.push([chainId.toString(), "burn()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), nonce.toString()]);
     localStorage.setItem('eventsList', JSON.stringify(eventsList));
     setEventsList(eventsList);
   };
 
-  const mintHandler = (tokenNativeAddress, amount, receiver, tx) => {
+  const mintHandler = (tokenNativeAddress, receiver, amount, wrappedTokenAddress, tx) => {
     // console.log(tx);
     eventsList.push([chainId.toString(), "mint()",tokenNativeAddress.toString(), receiver.toString(), amount.toString(), ""]);
     localStorage.setItem('eventsList', JSON.stringify(eventsList));

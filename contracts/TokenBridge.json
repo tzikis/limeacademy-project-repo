@@ -15,6 +15,12 @@
       },
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "_receiver",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint32",
         "name": "_amount",
         "type": "uint32"
@@ -22,7 +28,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_receiver",
+        "name": "_wrappedTokenAddress",
         "type": "address"
       },
       {
@@ -77,6 +83,12 @@
       },
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "_receiver",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint32",
         "name": "_amount",
         "type": "uint32"
@@ -84,7 +96,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_receiver",
+        "name": "_wrappedTokenAddress",
         "type": "address"
       }
     ],
@@ -400,25 +412,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "tokenAddresses",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "newOwner",
         "type": "address"
       }
@@ -550,6 +543,25 @@
       }
     ],
     "name": "verify",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "wrappedTokenAddresses",
     "outputs": [
       {
         "internalType": "address",
