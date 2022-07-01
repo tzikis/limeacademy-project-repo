@@ -1,8 +1,6 @@
 import { useWeb3React } from "@web3-react/core";
 import Head from "next/head";
-import Link from "next/link";
 import Account from "../components/Account";
-import NativeCurrencyBalance from "../components/NativeCurrencyBalance";
 import TokenManager from "../components/TokenManager";
 import TokenBridgeComponent from "../components/TokenBridge";
 import TokenBridgeValidatorComponent from "../components/TokenBridgeValidator";
@@ -57,33 +55,7 @@ function Home() {
       <style jsx>{`
         main {
           text-align: center;
-        }
-
-        .lds-dual-ring {
-          display: inline-block;
-          width: 80px;
-          height: 80px;
-        }
-        .lds-dual-ring:after {
-          content: " ";
-          display: block;
-          width: 64px;
-          height: 64px;
-          margin: 8px;
-          border-radius: 50%;
-          border: 6px solid #000;
-          border-color: #000 transparent #000 transparent;
-          animation: lds-dual-ring 1.2s linear infinite;
-        }
-        @keyframes lds-dual-ring {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
- 
+        } 
       `}</style>
     </div>
   );
