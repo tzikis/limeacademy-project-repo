@@ -15,7 +15,6 @@ var tokenSymbolsStorageKey;
 var tokenBalancesStorageKey;
 var tokenAllowancesStorageKey;
 
-
 const TokenManager = () => {
     const { account, library, chainId } = useWeb3React<Web3Provider>();
 
@@ -33,7 +32,6 @@ const TokenManager = () => {
     const [allowanceAmount, setAllowanceAmount] = useState<string>('');
 
 
-    const [warningMessage, setWarningMessage] = useState<string>('');
     const [transactionPending, setTransactionPending] = useState<number>(0);
     const [txHash, setTxHash] = useState<string>('Unknown');
     useEffect(() => {
@@ -48,6 +46,7 @@ const TokenManager = () => {
     }, [chainId, account])
 
     const setInformUser = (newStatus, newStatusMessage) => {
+        setTransactionPending(0);
         setTokenManagerStatus(newStatus);
         setTokenManagerMessage(newStatusMessage);
     }
@@ -91,7 +90,7 @@ const TokenManager = () => {
         console.log("Token " + tokenInfo.tokenName + " - " + tokenInfo.tokenSymbol + " found. Account Balance: " + tokenInfo.tokenUserBalance + " Allowance: " + tokenInfo.tokenUserAllowance);
 
         updateTokensLists(tokenAddress, tokenInfo.tokenName, tokenInfo.tokenSymbol, tokenInfo.tokenUserBalance, tokenInfo.tokenUserAllowance);
-        setInformUser(0, "");
+        setInformUser(0, "Address Added.");
     };
 
     const getTokenContract = (contractAddress) => {
@@ -274,7 +273,7 @@ const TokenManager = () => {
 
         setTokenBalancesList(newTokenBalances);
         localStorage.setItem(tokenBalancesStorageKey, JSON.stringify(newTokenBalances));
-        setInformUser(0, "");
+        setInformUser(0, "Token balances updated successfully.");
     }
 
     const fetchNewTokenBalance = async (address) => {
@@ -306,7 +305,7 @@ const TokenManager = () => {
 
         setTokenAllowancesList(newTokenAllowances);
         localStorage.setItem(tokenAllowancesStorageKey, JSON.stringify(newTokenAllowances));
-        setInformUser(0, "");
+        setInformUser(0, "Token allowances updates successfully.");
     }
 
     const fetchNewTokenAllowance = async (address) => {
@@ -331,28 +330,45 @@ const TokenManager = () => {
     }
 
     const changeAllowance = async () => {
+
+        if(allowanceAmount == ""){
+            setInformUser(0, "Please specify an amount to approve.");
+            return null;
+        } 
+
+        if(tokenAddress == ""){
+            setInformUser(0, "Please specify a token address.");
+            return null;
+        } 
+
+        if (!isAddress(tokenAddress)) {
+            setInformUser(0, "Sorry, this is not a valid contract address.");
+            return;
+        }
+
         const contractObj = getTokenContract(tokenAddress);
         if (contractObj == null) {
             console.log("Contract with token address " + tokenAddress + " doesn't seem to exist.");
             return null;
         }
 
-
         try {
             const tx = await contractObj.approve(TOKEN_BRIDGE_ADDRESSES[chainId]["address"], allowanceAmount);
 
             setTxHash(tx.hash);
+            setInformUser(1, "Setting new allowance amount for Token Bridge Contract.");
+            await new Promise(r => setTimeout(r, 20));
             setTransactionPending(1);
-            setWarningMessage("Setting new allowance amount for Token Bridge Contract.");
             await tx.wait();
-            setWarningMessage("New allowance amount for Token Bridge Contract was successfully set.");
+            setInformUser(0, "New allowance amount for Token Bridge Contract was successfully set.");
+            await new Promise(r => setTimeout(r, 20));
             setTransactionPending(2);
 
         }
         catch (error) {
             console.log(error)
             console.error(error)
-            setWarningMessage("Sorry, we couldn't do that. An error occured");
+            setInformUser(0, "Sorry, we couldn't do that. An error occured.");
         }
 
         const tokenBalance = await getTokenBalance(contractObj);
@@ -369,34 +385,35 @@ const TokenManager = () => {
     return (
         <div className="">
             <h2>ERC20 Tokens</h2>
-            <h3>Tokens List</h3>
-            <table className="table">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Address</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Symbol</th>
-                        <th scope="col">Balance</th>
-                        <th scope="col">Allowance</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {tokensList.map((element, index) => (
+            {tokensList.length > 0 ?
+                <table className="table">
+                    <thead>
                         <tr>
-                            <th scope="row">{index}</th>
-                            <td>{element}</td>
-                            <td>{tokenNamesList[index]}</td>
-                            <td>{tokenSymbolsList[index]}</td>
-                            <td>{tokenBalancesList[index]}</td>
-                            <td>{tokenAllowancesList[index]}</td>
+                            <th scope="col">#</th>
+                            <th scope="col">Address</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Symbol</th>
+                            <th scope="col">Balance</th>
+                            <th scope="col">Allowance</th>
                         </tr>
-                    ))}
-
-                </tbody>
-            </table>
-            <div>
-
+                    </thead>
+                    <tbody>
+                        {tokensList.map((element, index) => (
+                            <tr key={index}>
+                                <th scope="row">{index}</th>
+                                <td>{element}</td>
+                                <td>{tokenNamesList[index]}</td>
+                                <td>{tokenSymbolsList[index]}</td>
+                                <td>{tokenBalancesList[index]}</td>
+                                <td>{tokenAllowancesList[index]}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                :
+                <p>You don't seem to have any tokens. You can add some using the form bellow.</p>
+            }
+            <div style={{ margin: "10px" }}>
                 <div className="row align-items-center d-flex justify-content-center">
                     <div className="col-auto">
                         <button className="btn btn-secondary" onClick={updateTokenBalances} disabled={tokenManagerStatus ? true : false}>Update Balances</button>
@@ -405,8 +422,7 @@ const TokenManager = () => {
                     </div>
                 </div>
             </div>
-
-            <div>
+            <div style={{ margin: "10px" }}>
                 <div className="row gy-2 gx-3 align-items-center d-flex justify-content-center">
                     <label className="col-auto">Token Address:</label>
                     <div className="col-auto">
@@ -434,23 +450,46 @@ const TokenManager = () => {
                     </div>
                 </div>
             </div>
-            <div className="button-wrapper">
-            </div>
-            <p>{tokenManagerMessage}</p>
-            {tokenManagerStatus ? <div className="lds-dual-ring"></div> : null}
-            <p>{warningMessage}</p>
             <div className="loading-component" hidden={transactionPending == 0}>
                 <h3>Submitting Results</h3>
                 <p>Your transaction hash is <a href={"https://rinkeby.etherscan.io/tx/" + txHash} id="txHashSpan" target="_blank">{txHash}</a>.</p>
                 <div hidden={transactionPending != 1}>
                     <p>Results submitted. Please wait while the blockchain validates and approves your transaction.</p>
                     <p>This can take a few minutes.</p>
-                    <div className="lds-dual-ring"></div>
                 </div>
                 <div hidden={transactionPending != 2}>
                     <p>Results successfuly submitted.</p>
                 </div>
             </div>
+            <p>{tokenManagerMessage}</p>
+            {tokenManagerStatus ? <div className="lds-dual-ring"></div> : null}
+            <style jsx>{`
+        .lds-dual-ring {
+          display: inline-block;
+          width: 80px;
+          height: 80px;
+        }
+        .lds-dual-ring:after {
+          content: " ";
+          display: block;
+          width: 64px;
+          height: 64px;
+          margin: 8px;
+          border-radius: 50%;
+          border: 6px solid #000;
+          border-color: #000 transparent #000 transparent;
+          animation: lds-dual-ring 1.2s linear infinite;
+        }
+        @keyframes lds-dual-ring {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+        
+      `}</style>
 
         </div>
     );
