@@ -6,6 +6,8 @@ import useENSName from "../hooks/useENSName";
 import useMetaMaskOnboarding from "../hooks/useMetaMaskOnboarding";
 import { formatEtherscanLink, shortenHex } from "../util";
 
+import { TOKEN_BRIDGE_ADDRESSES } from "../constants";
+
 import NativeCurrencyBalance from "../components/NativeCurrencyBalance";
 
 type AccountProps = {
@@ -94,7 +96,9 @@ const Account = ({ triedToEagerConnect }: AccountProps) => {
   return (
     <>
     <span>
-      Adress: {" "}
+    Network:{" "}
+    {TOKEN_BRIDGE_ADDRESSES[chainId]["network"] + " (#" + chainId + ")"}
+    {" "} -  Address: {" "}
         <a
       {...{
         href: formatEtherscanLink("Account", [chainId, account]),
