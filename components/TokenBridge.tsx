@@ -28,7 +28,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   const [targetChainId, setTargetChainId] = useState<string>('');
   const [chainIdOptions, setChainIdOptions] = useState<Object[]>([]);
-  
+
   const [lockNonce, setLockNonce] = useState<string>('');
   const [lockValidationSignature, setLockValidationSignature] = useState<string>('');
   const [mintTokenName, setMintTokenName] = useState<string>('');
@@ -44,22 +44,22 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
     let arrayOfNetworks = [];
     for (const key in TOKEN_BRIDGE_ADDRESSES) {
-      if(TOKEN_BRIDGE_ADDRESSES[key]["id"] != chainId){
-        arrayOfNetworks.push({label: TOKEN_BRIDGE_ADDRESSES[key]["network"], value: TOKEN_BRIDGE_ADDRESSES[key]["id"]})
+      if (TOKEN_BRIDGE_ADDRESSES[key]["id"] != chainId) {
+        arrayOfNetworks.push({ label: TOKEN_BRIDGE_ADDRESSES[key]["network"], value: TOKEN_BRIDGE_ADDRESSES[key]["id"] })
       }
-  }
+    }
     setChainIdOptions(arrayOfNetworks);
     setTargetChainId(null);
 
     eventsListKey = 'eventsList-' + account;
     const eventsListStorage = localStorage.getItem(eventsListKey);
-    if(eventsListStorage != null)
+    if (eventsListStorage != null)
       eventsList = JSON.parse(eventsListStorage);
     else
       eventsList = [];
 
     setEventsList(eventsList);
-  },[chainId, account])
+  }, [chainId, account])
 
   useEffect(() => {
     console.log("Token Bridge useEffect called");
@@ -78,7 +78,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       functionName: "unlock()",
       tokenNativeAddress: tokenNativeAddress.toString(),
       receiverOrOwnerAddress: receiver.toString(),
-      amount:amount.toString()
+      amount: amount.toString()
     };
     addEventToList(newEventStorageObject);
   };
@@ -93,7 +93,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       functionName: "lock()",
       tokenNativeAddress: tokenNativeAddress.toString(),
       receiverOrOwnerAddress: receiver.toString(),
-      amount:amount.toString(),
+      amount: amount.toString(),
       nonce: nonce.toString(),
     };
     addEventToList(newEventStorageObject);
@@ -107,7 +107,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       functionName: "burn()",
       tokenNativeAddress: tokenNativeAddress.toString(),
       receiverOrOwnerAddress: receiver.toString(),
-      amount:amount.toString(),
+      amount: amount.toString(),
       nonce: nonce.toString(),
       wrappedTokenAddress: wrappedTokenAddress.toString()
     };
@@ -123,7 +123,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       functionName: "mint()",
       tokenNativeAddress: tokenNativeAddress.toString(),
       receiverOrOwnerAddress: receiver.toString(),
-      amount:amount.toString(),
+      amount: amount.toString(),
       wrappedTokenAddress: wrappedTokenAddress.toString()
     };
     addEventToList(newEventStorageObject);
@@ -132,17 +132,17 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const addEventToList = (newEvent) => {
 
     // We really shouldn't be doing this, but the event handlers are called twice when they shouldn't. sigh..
-    for (var j = 0; j < eventsList.length; j++) {      
-      if(
-        newEvent.chainId == eventsList[j].chainId && 
-        newEvent.event == eventsList[j].event && 
-        newEvent.functionName == eventsList[j].functionName && 
-        newEvent.tokenNativeAddress == eventsList[j].tokenNativeAddress && 
-        newEvent.receiverOrOwnerAddress == eventsList[j].receiverOrOwnerAddress && 
+    for (var j = 0; j < eventsList.length; j++) {
+      if (
+        newEvent.chainId == eventsList[j].chainId &&
+        newEvent.event == eventsList[j].event &&
+        newEvent.functionName == eventsList[j].functionName &&
+        newEvent.tokenNativeAddress == eventsList[j].tokenNativeAddress &&
+        newEvent.receiverOrOwnerAddress == eventsList[j].receiverOrOwnerAddress &&
         newEvent.amount == eventsList[j].amount &&
         newEvent.nonce == eventsList[j].nonce &&
         newEvent.wrappedTokenAddress == eventsList[j].wrappedTokenAddress
-        ){
+      ) {
         return;
       }
     }
@@ -161,9 +161,9 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     //   index + ": " + "Target Chain: " + element.chainId + " Event: " + element.event + " Function Name: " + element.functionName + " - nativeTokenAddress: " + element.tokenNativeAddress + " - receiver/owner: " + element.receiverOrOwnerAddress + " - amount: " + element.amount + " nonce: " + element.nonce + " wrappedTokenAddress: " + element.wrappedTokenAddress + (element.signature? (" signature: " + element.signature) : "")
     //   ))
     //   const eventsString = eventsArray.join('\n')
-      // console.log(eventsString);
+    // console.log(eventsString);
 
-      setEventsListState(newList);
+    setEventsListState(newList);
 
   }
 
@@ -248,10 +248,10 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   }
 
   const submitMintTokens = async () => {
-    
+
     try {
 
-      const wrappedTokenInfo = {name: mintTokenName, symbol: mintTokenSymbol};
+      const wrappedTokenInfo = { name: mintTokenName, symbol: mintTokenSymbol };
       // const wrappedTokenInfo = ["Hello World", "yay"];
       // const signatureLike = await generateValidation("lock()", tokenContractAddress, account, tokenAmount, lockNonce);
       // const signature = await splitSignature(signatureLike);
@@ -307,45 +307,45 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       <h3>Native</h3>
       <div className="button-wrapper">
         <label>
-          Chain ID: 
+          Chain ID:
         </label>
         &nbsp;
-        <div style={{width:300, display:"inline-block"}}>
-          <Select  placeholder="Please select target network" value={targetChainId==null? null: chainIdOptions} onChange={targetChainChanged} options={chainIdOptions}/>
+        <div style={{ width: 300, display: "inline-block" }}>
+          <Select placeholder="Please select target network" value={targetChainId == null ? null : chainIdOptions} onChange={targetChainChanged} options={chainIdOptions} />
         </div>
         &nbsp;
         <button onClick={submitLockTokens}>Lock Tokens</button> &nbsp;
       </div>
       <div className="button-wrapper">
         <label>
-          Burn Nonce: 
+          Burn Nonce:
           <input onChange={burnNonceChanged} value={burnNonce} type="text" name="validator_nonce" />
-          &nbsp; Burn Signature: 
+          &nbsp; Burn Signature:
           <input onChange={burnValidationSignatureChanged} value={burnValidationSignature} type="text" name="lock_token_contract_address" />
         </label>
-        <button onClick={submitUnlockTokens}>Unlock Tokens</button>  
+        <button onClick={submitUnlockTokens}>Unlock Tokens</button>
       </div>
       <h3>Non-Native</h3>
       <div className="button-wrapper">
         <label>
-          Lock Nonce: 
+          Lock Nonce:
           <input onChange={lockNonceChanged} value={lockNonce} type="text" name="validator_nonce2" />
-          &nbsp; Lock Signature: 
+          &nbsp; Lock Signature:
           <input onChange={lockValidationSignatureChanged} value={lockValidationSignature} type="text" name="lock_token_contract_address" />
-          &nbsp; Mint Token Name: 
+          &nbsp; Mint Token Name:
           <input onChange={mintTokenNameChanged} value={mintTokenName} type="text" name="mint_token_name" />
-          &nbsp; Mint Token Symbol: 
+          &nbsp; Mint Token Symbol:
           <input onChange={mintTokenSymbolChanged} value={mintTokenSymbol} type="text" name="mint_token_symbol" />
         </label>
         <button onClick={submitMintTokens}>Mint Tokens</button>
       </div>
       <div className="button-wrapper">
         <label>
-          Chain ID: 
+          Chain ID:
         </label>
         &nbsp;
-        <div style={{width:300, display:"inline-block"}}>
-          <Select  placeholder="Please select target network" value={targetChainId==null? null: chainIdOptions} onChange={targetChainChanged} options={chainIdOptions}/>
+        <div style={{ width: 300, display: "inline-block" }}>
+          <Select placeholder="Please select target network" value={targetChainId == null ? null : chainIdOptions} onChange={targetChainChanged} options={chainIdOptions} />
         </div>
         &nbsp;
         <button onClick={submitBurnTokens}>Burn Tokens</button>
@@ -387,7 +387,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
                 <td>{element["amount"]}</td>
                 <td>{element["nonce"]}</td>
                 <td>{element["wrappedTokenAddress"]}</td>
-                <td  style={{maxWidth: "100px", overflow:"hidden"}}>{element["signature"]}</td>
+                <td style={{ maxWidth: "100px", overflow: "hidden" }}>{element["signature"]}</td>
               </tr>
             ))}
           </tbody>
