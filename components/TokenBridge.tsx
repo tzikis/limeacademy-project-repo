@@ -352,7 +352,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       </div>
       <p>{warningMessage}</p>
       <div className="loading-component" hidden={transactionPending == 0}>
-        <h3>Submitting Results</h3>
+        <h4>Submitting Results</h4>
         <p>Your transaction hash is <a href={"https://rinkeby.etherscan.io/tx/" + txHash} id="txHashSpan" target="_blank">{txHash}</a>.</p>
         <div hidden={transactionPending != 1}>
           <p>Results submitted. Please wait while the blockchain validates and approves your transaction.</p>
