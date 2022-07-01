@@ -57,9 +57,10 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
     tokenBridgeContract.on('Unlock', unlockHandler);
     tokenBridgeContract.on('Mint', mintHandler);
     tokenBridgeContract.on('Burn', burnHandler);
-  }, [])
+  }, [chainId])
 
   const unlockHandler = (targetChainId, tokenNativeAddress, receiver, amount, tx) => {
+    console.log("Token Bridge Validator unlockHandler");
     // console.log(tx);
     const newEventStorageObject = {
       chainId: targetChainId.toString(),
@@ -75,6 +76,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
 
   const lockHandler = (targetChainId, tokenNativeAddress, receiver, amount, nonce, tx) => {
     // console.log(tx);
+    console.log("Token Bridge Validator lockHandler");
     const newEventStorageObject = {
       chainId: targetChainId.toString(),
       event: "Lock",
@@ -88,6 +90,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
   };
 
   const burnHandler = (targetChainId, tokenNativeAddress, receiver, amount, wrappedTokenAddress, nonce, tx) => {
+    console.log("Token Bridge Validator burnHandler");
     const newEventStorageObject = {
       chainId: targetChainId.toString(),
       event: "Burn",
@@ -102,6 +105,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
   };
 
   const mintHandler = (targetChainId, tokenNativeAddress, receiver, amount, wrappedTokenAddress, tx) => {
+    console.log("Token Bridge Validator mintHandler");
     // console.log(tx);
     const newEventStorageObject = {
       chainId: targetChainId.toString(),
