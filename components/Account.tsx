@@ -58,13 +58,15 @@ const Account = ({ triedToEagerConnect }: AccountProps) => {
                 }
               });
             }}
+          className="btn btn-primary"
           >
             {isMetaMaskInstalled ? "Connect to MetaMask" : "Connect to Wallet"}
           </button>
           
         ) : (
-          <button onClick={startOnboarding}>Install Metamask</button>
+          <button onClick={startOnboarding} className="btn btn-primary">Install Metamask</button>
         )}
+        {" "}
         {(<button
             disabled={connecting}
             onClick={async () => {
@@ -77,7 +79,9 @@ const Account = ({ triedToEagerConnect }: AccountProps) => {
                   setError(error);
                 }
               }
-            }}>
+            }}
+            className="btn btn-secondary"
+            >
             Wallet Connect
           </button>)
         }
@@ -94,7 +98,7 @@ const Account = ({ triedToEagerConnect }: AccountProps) => {
         rel: "noopener noreferrer",
       }}
     >
-      {ENSName || `${shortenHex(account, 4)}`}
+      {ENSName || account}
     </a>
     <button
           onClick={async () => {
@@ -103,7 +107,9 @@ const Account = ({ triedToEagerConnect }: AccountProps) => {
             } catch (e) { 
               setError(error);
             }
-          }}>
+          }}
+          className="btn btn-warning"
+          >
           Disconnect
         </button>
     </>

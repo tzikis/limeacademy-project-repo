@@ -9,6 +9,8 @@ import TokenBridgeValidatorComponent from "../components/TokenBridgeValidator";
 import { TOKEN_BRIDGE_ADDRESSES } from "../constants";
 import useEagerConnect from "../hooks/useEagerConnect";
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 function Home() {
   const { library, account, chainId } = useWeb3React();
 
@@ -22,26 +24,23 @@ function Home() {
   return (
     <div>
       <Head>
-        <title>LimeAcademy-boilerplate</title>
+        <title>Tzikis Token Bridge</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <header>
-        <nav>
-          <Link href="/">
-            <a>LimeAcademy-boilerplate</a>
-          </Link>
-
+        <nav className="navbar navbar-light bg-light" style={{padding:".5rem"}}>
+          <a className="navbar-brand" href="#">
+            <img src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" width="30" height="30" className="d-inline-block align-top" alt="logo" />
+            {" "}Tzikis Token Bridge
+          </a>
           <Account triedToEagerConnect={triedToEagerConnect} />
         </nav>
       </header>
 
       <main>
         <h1>
-          Welcome to{" "}
-          <a href="https://github.com/LimeChain/next-web3-boilerplate">
-            LimeAcademy-boilerplate
-          </a>
+          Welcome to Tzikis Token Bridge
         </h1>
 
         {isConnected && (
@@ -55,11 +54,6 @@ function Home() {
       </main>
 
       <style jsx>{`
-        nav {
-          display: flex;
-          justify-content: space-between;
-        }
-
         main {
           text-align: center;
         }
