@@ -8,9 +8,7 @@ import Select from 'react-select';
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { splitSignature } from "@ethersproject/bytes";
-import { formatBytes32String } from "ethers/lib/utils";
 
-import type {WrappedTokenParamsStruct} from "../contracts/types";
 type TokenBridge = {
   contractAddress: string;
 };
