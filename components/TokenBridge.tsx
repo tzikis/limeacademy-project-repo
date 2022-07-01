@@ -5,7 +5,6 @@ import useTokenBridgeContract from "../hooks/useTokenBridgeContract";
 
 import { TOKEN_BRIDGE_ADDRESSES } from "../constants";
 import Select from 'react-select';
-// import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { splitSignature } from "@ethersproject/bytes";
 
@@ -38,7 +37,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const [burnNonce, setBurnNonce] = useState<string>('');
   const [burnValidationSignature, setBurnValidationSignature] = useState<string>('');
 
-  const [eventsListString, setEventsListString] = useState<string>('');
+  const [eventsListState, setEventsListState] = useState<Object[]>([]);
 
   useEffect(() => {
     // console.log("Chain id: " + chainId + " and wallet address: " + account);
@@ -158,13 +157,13 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     const newList = JSON.parse(newListJSON);
     newList.reverse();
 
-    const eventsArray = newList.map((element, index) => (
-      index + ": " + "Target Chain: " + element.chainId + " Event: " + element.event + " Function Name: " + element.functionName + " - nativeTokenAddress: " + element.tokenNativeAddress + " - receiver/owner: " + element.receiverOrOwnerAddress + " - amount: " + element.amount + " nonce: " + element.nonce + " wrappedTokenAddress: " + element.wrappedTokenAddress + (element.signature? (" signature: " + element.signature) : "")
-      ))
-      const eventsString = eventsArray.join('\n')
+    // const eventsArray = newList.map((element, index) => (
+    //   index + ": " + "Target Chain: " + element.chainId + " Event: " + element.event + " Function Name: " + element.functionName + " - nativeTokenAddress: " + element.tokenNativeAddress + " - receiver/owner: " + element.receiverOrOwnerAddress + " - amount: " + element.amount + " nonce: " + element.nonce + " wrappedTokenAddress: " + element.wrappedTokenAddress + (element.signature? (" signature: " + element.signature) : "")
+    //   ))
+    //   const eventsString = eventsArray.join('\n')
       // console.log(eventsString);
 
-      setEventsListString(eventsString);
+      setEventsListState(newList);
 
   }
 
@@ -295,7 +294,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   return (
     <div className="results-form">
-      <h2>Bridge Token</h2>
+      <h2>Token Bridge</h2>
       <h3>Common</h3>
       <label>
         Token Address:
@@ -364,7 +363,38 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
           <p>Results successfuly submitted.</p>
         </div>
       </div>
-      <pre>{eventsListString}</pre>
+      {eventsList.length > 0 ?
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Target Chain</th>
+              <th scope="col">Transaction Type</th>
+              <th scope="col">Native Token Address</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Nonce</th>
+              <th scope="col">Wrapped Token Address</th>
+              <th scope="col">Signature</th>
+            </tr>
+          </thead>
+          <tbody>
+            {eventsListState.map((element, index) => (
+              <tr key={index}>
+                <th scope="row">{index}</th>
+                <td>{TOKEN_BRIDGE_ADDRESSES[element["chainId"]]["network"] + " (#" + element["chainId"] + ")"}</td>
+                <td>{element["event"]}</td>
+                <td>{element["tokenNativeAddress"]}</td>
+                <td>{element["amount"]}</td>
+                <td>{element["nonce"]}</td>
+                <td>{element["wrappedTokenAddress"]}</td>
+                <td  style={{maxWidth: "100px", overflow:"hidden"}}>{element["signature"]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        :
+        <></>
+      }
       <style jsx>{`
         .results-form {
           display: flex;
