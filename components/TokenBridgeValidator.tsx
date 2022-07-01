@@ -176,13 +176,13 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
   
 const generateLockValidation = async() => {
   const valSig = await generateValidation("lock()", targetChainId, tokenContractAddress, receiverAddress, tokenAmount, nonce);
-  updateHistory("lock()", tokenContractAddress, receiverAddress, tokenAmount, nonce, valSig)
+  updateHistory(targetChainId, "lock()", tokenContractAddress, receiverAddress, tokenAmount, nonce, valSig)
   setValidationSignature(valSig);
 }
 
 const generateBurnValidation = async() => {
   const valSig = await generateValidation("burn()", targetChainId, tokenContractAddress, receiverAddress, tokenAmount, nonce);
-  updateHistory("burn()", tokenContractAddress, receiverAddress, tokenAmount, nonce, valSig)
+  updateHistory(targetChainId, "burn()", tokenContractAddress, receiverAddress, tokenAmount, nonce, valSig)
   setValidationSignature(valSig);
 }
 
@@ -226,7 +226,7 @@ const testBurnValidation = async() => {
 
 }
 
-const updateHistory = (functionName, tokenContractAddress, receiverAccount, tokenAmount, nonce, signature) => {
+const updateHistory = (eventTargetChainId, functionName, tokenContractAddress, receiverAccount, tokenAmount, nonce, signature) => {
   for (var j = 0; j < eventsHistory.length; j++) {
     const eventFunctionName = eventsHistory[j].functionName;
     const eventTokenContractAddress = eventsHistory[j].tokenNativeAddress;
@@ -236,14 +236,37 @@ const updateHistory = (functionName, tokenContractAddress, receiverAccount, toke
 
     // console.log(j + " " + eventFunctionName + " " + eventTokenContractAddress + " " + eventReceiverAccount + " " + eventTokenAmount + " " + eventNonce + " wtf");
     // console.log(j + " " + functionName + " " + tokenContractAddress + " " + receiverAccount + " " + tokenAmount + " " + nonce + " wtf");
-    
-    if(functionName == eventFunctionName && tokenContractAddress == eventTokenContractAddress && receiverAccount == eventReceiverAccount && eventTokenAmount == tokenAmount && nonce == eventNonce){
+
+    if(
+      eventTargetChainId == eventsHistory[j].chainId && 
+      functionName == eventsHistory[j].functionName && 
+      tokenContractAddress == eventsHistory[j].tokenNativeAddress && 
+      receiverAccount == eventsHistory[j].receiverOrOwnerAddress && 
+      tokenAmount == eventsHistory[j].amount &&
+      nonce == eventsHistory[j].nonce
+        ){
       eventsHistory[j].signature = signature;
       localStorage.setItem('eventsHistory', JSON.stringify(eventsHistory));
       setEventsHistory(eventsHistory);
+      appendOwnersEventList(eventsHistory[j]);
       break;
     }
   }
+
+}
+
+const appendOwnersEventList = (signedEvent) => {
+  const owner = signedEvent.receiverOrOwnerAddress;
+  const eventsListKey = 'eventsList-' + owner;
+  const eventsListStorage = localStorage.getItem(eventsListKey);
+  let eventsList = [];
+  if(eventsListStorage != null){
+    eventsList = JSON.parse(eventsListStorage);
+  }
+
+  signedEvent.event = signedEvent.event + " Validation Signature";
+  eventsList.push(signedEvent);
+  localStorage.setItem(eventsListKey, JSON.stringify(eventsList));
 
 }
 

@@ -54,7 +54,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     setChainIdOptions(arrayOfNetworks);
     setTargetChainId(null);
 
-    eventsListKey = 'eventsList-' + chainId + "-" + account;
+    eventsListKey = 'eventsList-' + account;
     const eventsListStorage = localStorage.getItem(eventsListKey);
     if(eventsListStorage != null)
       eventsList = JSON.parse(eventsListStorage);
@@ -157,7 +157,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     newList.reverse();
 
     const eventsArray = newList.map((element, index) => (
-      index + ": " + "Target Chain: " + element.chainId + " Event: " + element.event + " Function Name: " + element.functionName + " - nativeTokenAddress: " + element.tokenNativeAddress + " - receiver/owner: " + element.receiverOrOwnerAddress + " - amount: " + element.amount + " nonce: " + element.nonce + " wrappedTokenAddress: " + element.wrappedTokenAddress
+      index + ": " + "Target Chain: " + element.chainId + " Event: " + element.event + " Function Name: " + element.functionName + " - nativeTokenAddress: " + element.tokenNativeAddress + " - receiver/owner: " + element.receiverOrOwnerAddress + " - amount: " + element.amount + " nonce: " + element.nonce + " wrappedTokenAddress: " + element.wrappedTokenAddress + (element.signature? (" signature: " + element.signature) : "")
       ))
       const eventsString = eventsArray.join('\n')
       // console.log(eventsString);
@@ -259,9 +259,9 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
       setTxHash(tx.hash);
       setTransactionPending(1);
-      setWarningMessage("Unlocking token in Token Bridge Contract.");
+      setWarningMessage("Minting token in Non-native Token Bridge Contract.");
       await tx.wait();
-      setWarningMessage("Unlocking from Token Bridge Contract was successful.");
+      setWarningMessage("Minting token in Non-native Token Bridge Contract was successful.");
       setTransactionPending(2);
     }
     catch (error) {
