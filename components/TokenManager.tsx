@@ -370,11 +370,31 @@ const TokenManager = () => {
         <div className="">
             <h2>ERC20 Tokens</h2>
             <h3>Tokens List</h3>
-            <li>
-                {tokensList.map((element, index) => (
-                    <ul key={index}> {element} - {tokenNamesList[index]} - {tokenSymbolsList[index]} - Balance: {tokenBalancesList[index]} - Allowance: {tokenAllowancesList[index]}</ul>
-                ))}
-            </li>
+            <table className="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Symbol</th>
+                        <th scope="col">Balance</th>
+                        <th scope="col">Allowance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {tokensList.map((element, index) => (
+                        <tr>
+                            <th scope="row">{index}</th>
+                            <td>{element}</td>
+                            <td>{tokenNamesList[index]}</td>
+                            <td>{tokenSymbolsList[index]}</td>
+                            <td>{tokenBalancesList[index]}</td>
+                            <td>{tokenAllowancesList[index]}</td>
+                        </tr>
+                    ))}
+
+                </tbody>
+            </table>
             <div>
 
                 <div className="row align-items-center d-flex justify-content-center">
