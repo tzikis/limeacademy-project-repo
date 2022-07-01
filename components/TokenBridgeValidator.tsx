@@ -326,29 +326,62 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
     <div className="results-form">
       <div hidden={account != contractOwner}>
         <h2>Validator</h2>
-        <h3>Generate Validations</h3>
-        <label>
-          Target Chain ID:
-          <input onChange={targetChainChanged} value={targetChainId} type="number" name="target_chain" />
-          Native Token Address:
-          <input onChange={tokenContractAddressChanged} value={tokenContractAddress} type="text" name="validator_token_contract_address" />
-          Token Owner/Receiver Address:
-          <input onChange={receiverAddressChanged} value={receiverAddress} type="text" name="validator_token_receiver_owner_address" />
-          &nbsp;Amount:
-          <input onChange={tokenAmountChanged} value={tokenAmount} type="number" name="validator_token_amount" />
-          Nonce:
-          <input onChange={nonceChanged} value={nonce} type="text" name="validator_nonce" />
-        </label>
-        <div className="button-wrapper">
-          <button onClick={generateLockValidation}>Generate Lock Validation</button> &nbsp;
-          <button onClick={generateBurnValidation}>Generate Burn Validation</button>
+        <div style={{ margin: "10px" }}>
+          <div className="row gy-2 gx-3 align-items-center d-flex justify-content-center">
+            <label className="col-auto">Target Chain ID:</label>
+            <div className="col-auto">
+              <input type="number" className="form-control" id="autoSizingInput" placeholder="Chain ID"
+                onChange={targetChainChanged} value={targetChainId} name="target_chain"
+              />
+            </div>
+            <label className="col-auto">Native Token Address:</label>
+            <div className="col-auto">
+              <input type="text" className="form-control" id="autoSizingInput" placeholder="Token Address"
+                onChange={tokenContractAddressChanged} value={tokenContractAddress} name="validator_token_contract_address"
+              />
+            </div>
+            <label className="col-auto">Token Owner/Receiver Address:</label>
+            <div className="col-auto">
+              <input type="text" className="form-control" id="autoSizingInput" placeholder="Token Address"
+                onChange={receiverAddressChanged} value={receiverAddress} name="validator_token_receiver_owner_address"
+              />
+            </div>
+            <label className="col-auto">Amount:</label>
+            <div className="col-auto">
+              <input type="number" className="form-control" id="autoSizingInput" placeholder="0"
+                onChange={tokenAmountChanged} value={tokenAmount} name="validator_token_amount"
+              />
+            </div>
+            <label className="col-auto">Nonce:</label>
+            <div className="col-auto">
+              <input type="number" className="form-control" id="autoSizingInput" placeholder="0"
+                onChange={nonceChanged} value={nonce} name="validator_nonce"
+              />
+            </div>
+            <div className="col-auto">
+              <button type="button" className="btn btn-primary" onClick={generateLockValidation}>Generate Lock Validation</button>
+            </div>
+            {/* <div className="col-auto">
+                <div className="input-group">
+                <div className="input-group-text">Amount:</div>
+                <input type="text" className="form-control" id="autoSizingInputGroup" placeholder="Username"/>
+                </div>
+            </div> */}
+            <div className="col-auto">
+              <button type="submit" className="btn btn-primary" onClick={generateBurnValidation}>Generate Burn Validation</button>
+            </div>
+            <div className="col-auto">
+              <button type="submit" className="btn btn-warning" onClick={testLockValidation}>Test Lock Validation Verification</button>
+            </div>
+            <div className="col-auto">
+              <button type="submit" className="btn btn-warning" onClick={testBurnValidation}>Test Burn Validation Verification</button>
+            </div>
+          </div>
         </div>
-        <div className="button-wrapper">
-          <button onClick={testLockValidation}>Test Lock Validation Verification</button> &nbsp;
-          <button onClick={testBurnValidation}>Test Burn Validation Verification</button>
-        </div>
-        <p>Validation signature: {validationSignature}</p>
-        <p>Verification response: {validationVerificationResponse}</p>
+        <p>Validation Signature:</p>
+        <p>{validationSignature}</p>
+        <p>Verification Response (Address):</p>
+        <p>{validationVerificationResponse}</p>
         {eventsHistoryState.length > 0 ?
           <table className="table">
             <thead>
