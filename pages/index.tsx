@@ -45,10 +45,12 @@ function Home() {
 
         {isConnected && (
           <section>
-            <NativeCurrencyBalance />
-            <TokenManager />
-            <TokenBridgeComponent contractAddress={TOKEN_BRIDGE_ADDRESSES[chainId]["address"]} />
-            <TokenBridgeValidatorComponent contractAddress={TOKEN_BRIDGE_ADDRESSES[chainId]["address"]} />
+            <div className="container">
+              <NativeCurrencyBalance />
+              <TokenManager />
+              <TokenBridgeComponent contractAddress={TOKEN_BRIDGE_ADDRESSES[chainId]["address"]} />
+              <TokenBridgeValidatorComponent contractAddress={TOKEN_BRIDGE_ADDRESSES[chainId]["address"]} />
+            </div>
           </section>
         )}
       </main>
