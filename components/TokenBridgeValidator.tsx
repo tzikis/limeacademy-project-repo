@@ -5,6 +5,8 @@ import useTokenBridgeContract from "../hooks/useTokenBridgeContract";
 
 import { splitSignature } from "@ethersproject/bytes";
 
+import { TOKEN_BRIDGE_ADDRESSES } from "../constants";
+
 type TokenBridge = {
   contractAddress: string;
 };
@@ -26,7 +28,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
   const [validationSignature, setValidationSignature] = useState<string>('');
   const [validationVerificationResponse, setValidationVerificationResponse] = useState<string>('');
 
-  const [eventsHistoryString, setEventsHistoryString] = useState<string>('');
+  const [eventsHistoryState, setEventsHistoryState] = useState<Object[]>([]);
 
   const [contractOwner, setContractOwner] = useState<string>('');
 
@@ -147,15 +149,13 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
     const newList = JSON.parse(newListJSON);
     newList.reverse();
 
-    const eventsArray = newList.map((element, index) => (
-      index + ": " + "Target Chain: " + element.chainId + " Event: " + element.event + " Function Name: " + element.functionName + " - nativeTokenAddress: " + element.tokenNativeAddress + " - receiver/owner: " + element.receiverOrOwnerAddress + " - amount: " + element.amount + " nonce: " + element.nonce + " wrappedTokenAddress: " + element.wrappedTokenAddress + " signature: " + element.signature
-      ))
-      const eventsString = eventsArray.join('\n')
+    // const eventsArray = newList.map((element, index) => (
+    //   index + ": " + "Target Chain: " + element.chainId + " Event: " + element.event + " Function Name: " + element.functionName + " - nativeTokenAddress: " + element.tokenNativeAddress + " - receiver/owner: " + element.receiverOrOwnerAddress + " - amount: " + element.amount + " nonce: " + element.nonce + " wrappedTokenAddress: " + element.wrappedTokenAddress + " signature: " + element.signature
+    //   ))
+    //   const eventsString = eventsArray.join('\n')
       // console.log(eventsString);
 
-      setEventsHistoryString(eventsString);
-
-
+      setEventsHistoryState(newList);
   }
 
   const targetChainChanged = (input) => {
@@ -349,7 +349,40 @@ const generateValidation = async (functionName, targetChainId, tokenAddress, rec
         </div>
         <p>Validation signature: {validationSignature}</p>
         <p>Verification response: {validationVerificationResponse}</p>
-        <pre>{eventsHistoryString}</pre>
+        {eventsHistoryState.length > 0 ?
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Target Chain</th>
+              <th scope="col">Transaction Type</th>
+              <th scope="col">Transaction Function Name</th>
+              <th scope="col">Native Token Address</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Nonce</th>
+              <th scope="col">Wrapped Token Address</th>
+              <th scope="col">Signature</th>
+            </tr>
+          </thead>
+          <tbody>
+            {eventsHistoryState.map((element, index) => (
+              <tr key={index}>
+                <th scope="row">{index}</th>
+                <td>{TOKEN_BRIDGE_ADDRESSES[element["chainId"]]["network"] + " (#" + element["chainId"] + ")"}</td>
+                <td>{element["event"]}</td>
+                <td>{element["functionName"]}</td>
+                <td>{element["tokenNativeAddress"]}</td>
+                <td>{element["amount"]}</td>
+                <td>{element["nonce"]}</td>
+                <td>{element["wrappedTokenAddress"]}</td>
+                <td style={{ maxWidth: "100px", overflow: "hidden" }}>{element["signature"]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        :
+        <></>
+      }
       </div>
       <style jsx>{`
         .results-form {
