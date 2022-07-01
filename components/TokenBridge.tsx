@@ -363,7 +363,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
           <p>Results successfuly submitted.</p>
         </div>
       </div>
-      {eventsList.length > 0 ?
+      {eventsListState.length > 0 ?
         <table className="table">
           <thead>
             <tr>
