@@ -324,23 +324,29 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
       </div>
       <div style={{ margin: "10px" }}>
         <div className="row gy-2 gx-3 align-items-center d-flex justify-content-center">
+          <label className="col-auto">Nonce:</label>
+          <div className="col-auto">
+            <input type="number" className="form-control" style={{ width: 100 }} placeholder="0"
+              onChange={nonceChanged} value={nonce} name="nonce_input"
+            />
+          </div>
+          <label className="col-auto">Signature:</label>
+          <div className="col-auto">
+            <input type="text" className="form-control" placeholder="Signature"
+              onChange={validationSignatureChanged} value={validationSignature} name="signature_input"
+            />
+          </div>
+          <div className="col-auto">
+            <button type="button" className="btn btn-primary" onClick={submitUnlockTokens}>Unlock Tokens</button>
+          </div>
           <div className="col-auto">
             <div className="input-group">
-              <div className="input-group-text">Nonce</div>
-              <input type="number" className="form-control" style={{ width: 100 }} placeholder="0"
-                onChange={nonceChanged} value={nonce} name="nonce_input"
-              />
-              <div className="input-group-text">Signature</div>
-              <input type="text" className="form-control" placeholder="Signature"
-                onChange={validationSignatureChanged} value={validationSignature} name="signature_input"
-              />
-              <button type="button" className="btn btn-primary" onClick={submitUnlockTokens}>Unlock Tokens</button>
-              <div className="input-group-text">Token Name</div>
-              <input type="text" className="form-control" placeholder="Name"
+              <div className="input-group-text">Name</div>
+              <input type="text" className="form-control" placeholder="Token Name" style={{ width: 120 }}
                 onChange={mintTokenNameChanged} value={mintTokenName} name="mint_token_name"
               />
-              <div className="input-group-text">Token Symbol</div>
-              <input type="text" className="form-control" placeholder="Symbol"
+              <div className="input-group-text">Symbol</div>
+              <input type="text" className="form-control" placeholder="i.e. USDC" style={{ width: 80 }}
                 onChange={mintTokenSymbolChanged} value={mintTokenSymbol} name="mint_token_symbol"
               />
               <button type="button" className="btn btn-primary" onClick={submitMintTokens}>Mint Tokens</button>
