@@ -407,7 +407,15 @@ const TokenManager = () => {
                         {tokensList.map((element, index) => (
                             <tr key={index}>
                                 <th scope="row">{index}</th>
-                                <td>{element}</td>
+                                <td>
+                                    {element}
+                                    {" "}
+                                    <button className="btn btn-link btn-sm"
+                                    onClick={() => { navigator.clipboard.writeText(element) }}
+                                    style={{marginBottom:"4px"}}>
+                                        <i className="bi bi-clipboard"></i>
+                                    </button>
+                                </td>
                                 <td>{tokenNamesList[index]}</td>
                                 <td>{tokenSymbolsList[index]}</td>
                                 <td>{tokenBalancesList[index]}</td>
