@@ -8,6 +8,7 @@ import { TOKEN_BRIDGE_ADDRESSES } from "../constants";
 import useEagerConnect from "../hooks/useEagerConnect";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 function Home() {
   const { library, account, chainId } = useWeb3React();
