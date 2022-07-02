@@ -15,6 +15,7 @@ var tokenNamesStorageKey;
 var tokenSymbolsStorageKey;
 var tokenBalancesStorageKey;
 var tokenAllowancesStorageKey;
+var tokenLocksStorageKey;
 
 type TokenBridge = {
     contractAddress: string;
@@ -29,6 +30,7 @@ const TokenManager = ({ contractAddress }: TokenBridge) => {
     const [tokenSymbolsList, setTokenSymbolsList] = useState<String[]>([]);
     const [tokenBalancesList, setTokenBalancesList] = useState<String[]>([]);
     const [tokenAllowancesList, setTokenAllowancesList] = useState<String[]>([]);
+    const [tokenLocksList, setTokenLocksList] = useState<String[]>([]);
 
 
     const [tokenManagerStatus, setTokenManagerStatus] = useState<number>(0);
@@ -48,6 +50,7 @@ const TokenManager = ({ contractAddress }: TokenBridge) => {
         tokenSymbolsStorageKey = 'myTokenSymbols-' + chainId + "-" + account;
         tokenBalancesStorageKey = 'myTokenBalances-' + chainId + "-" + account;
         tokenAllowancesStorageKey = 'myTokenAllowances-' + chainId + "-" + account;
+        tokenLocksStorageKey = 'myTokenLocks-' + chainId + "-" + account;
         getPreviousTokensList();
     }, [chainId, account])
 
@@ -95,7 +98,18 @@ const TokenManager = ({ contractAddress }: TokenBridge) => {
 
         console.log("Token " + tokenInfo.tokenName + " - " + tokenInfo.tokenSymbol + " found. Account Balance: " + tokenInfo.tokenUserBalance + " Allowance: " + tokenInfo.tokenUserAllowance);
 
-        updateTokensLists(tokenAddress, tokenInfo.tokenName, tokenInfo.tokenSymbol, tokenInfo.tokenUserBalance, tokenInfo.tokenUserAllowance);
+        let newLockedTokensValue = null
+        try {
+            newLockedTokensValue = await tokenBridgeContract.lockedTokens(tokenAddress, account);
+          }
+          catch (error) {
+            console.log(error)
+            console.error(error)
+          }
+          if(newLockedTokensValue == null)
+            newLockedTokensValue = 0;
+
+        updateTokensLists(tokenAddress, tokenInfo.tokenName, tokenInfo.tokenSymbol, tokenInfo.tokenUserBalance, tokenInfo.tokenUserAllowance, newLockedTokensValue);
         setInformUser(0, "Address Added.");
     };
 
@@ -171,7 +185,7 @@ const TokenManager = ({ contractAddress }: TokenBridge) => {
         return -1;
     }
 
-    const updateTokensLists = (tokenAddress, newTokenName, newTokenSymbol, newTokenBalance, newTokenAllowance) => {
+    const updateTokensLists = (tokenAddress, newTokenName, newTokenSymbol, newTokenBalance, newTokenAllowance, newTockenLock) => {
 
         // const tokenAddressList = tokensList;
         const tokenAddressList = JSON.parse(JSON.stringify(tokensList)); // this will copy everything from original 
@@ -189,17 +203,22 @@ const TokenManager = ({ contractAddress }: TokenBridge) => {
         const newTokenAllowancesList = JSON.parse(JSON.stringify(tokenAllowancesList)); // this will copy everything from original 
         newTokenAllowancesList.push(newTokenAllowance.toString());
 
+        const newTokenLocksList = JSON.parse(JSON.stringify(tokenLocksList)); // this will copy everything from original 
+        newTokenLocksList.push(newTockenLock.toString());
+
         setTokensList(tokenAddressList);
         setTokenNamesList(newTokenNamesList);
         setTokenSymbolsList(newTokenSymbolsList);
         setTokenBalancesList(newTokenBalancesList);
         setTokenAllowancesList(newTokenAllowancesList);
+        setTokenLocksList(newTokenLocksList);
 
         localStorage.setItem(tokenAddressesStorageKey, JSON.stringify(tokenAddressList));
         localStorage.setItem(tokenNamesStorageKey, JSON.stringify(newTokenNamesList));
         localStorage.setItem(tokenSymbolsStorageKey, JSON.stringify(newTokenSymbolsList));
         localStorage.setItem(tokenBalancesStorageKey, JSON.stringify(newTokenBalancesList));
         localStorage.setItem(tokenAllowancesStorageKey, JSON.stringify(newTokenAllowancesList));
+        localStorage.setItem(tokenLocksStorageKey, JSON.stringify(newTokenLocksList));
     }
 
     const getPreviousTokensList = async () => {
@@ -211,20 +230,22 @@ const TokenManager = ({ contractAddress }: TokenBridge) => {
         const tokenSymbolsStorageVal = localStorage.getItem(tokenSymbolsStorageKey);
         const tokenBalancesStorageVal = localStorage.getItem(tokenBalancesStorageKey);
         const tokenAllowancesStorageVal = localStorage.getItem(tokenAllowancesStorageKey);
+        const tokenLocksStorageVal = localStorage.getItem(tokenLocksStorageKey);
 
         // If they are all null, we haven't saved anything, so we just move on.
-        if (tokenNamesStorageVal == null && tokenNamesStorageVal == null && tokenSymbolsStorageVal == null && tokenBalancesStorageVal == null && tokenAllowancesStorageVal == null) {
+        if (tokenNamesStorageVal == null && tokenNamesStorageVal == null && tokenSymbolsStorageVal == null && tokenBalancesStorageVal == null && tokenAllowancesStorageVal == null && tokenLocksStorageVal == null) {
             setTokensList([]);
             setTokenNamesList([]);
             setTokenSymbolsList([]);
             setTokenBalancesList([]);
             setTokenAllowancesList([]);
+            setTokenLocksList([]);
             setInformUser(0, "");
             return;
         }
 
         // Otherwise there was an error, so let's clear the previous results and start over
-        if (tokenNamesStorageVal == null || tokenNamesStorageVal == null || tokenSymbolsStorageVal == null || tokenBalancesStorageVal == null || tokenAllowancesStorageVal == null) {
+        if (tokenNamesStorageVal == null || tokenNamesStorageVal == null || tokenSymbolsStorageVal == null || tokenBalancesStorageVal == null || tokenAllowancesStorageVal == null || tokenLocksStorageVal == null) {
             setInformUser(0, "Something went wrong. Could not fetch previous tokens.");
             localStorage.clear();
             return;
@@ -238,6 +259,10 @@ const TokenManager = ({ contractAddress }: TokenBridge) => {
 
         const previousTokenBalancesList = JSON.parse(tokenBalancesStorageVal);
 
+        const previousTokenAllowancesList = JSON.parse(tokenAllowancesStorageVal);
+
+        const previousTokenLocksList = JSON.parse(tokenLocksStorageVal);
+
         // updateTokenBalances();
         // This doesn't seem to work because we're still at page load? Contract object or sth like that maybe doesn't exist yet?
         // Figure out how to do it
@@ -247,7 +272,6 @@ const TokenManager = ({ contractAddress }: TokenBridge) => {
                 previousTokenBalancesList[j] = newBalance.toString();
         }
 
-        const previousTokenAllowancesList = JSON.parse(tokenAllowancesStorageVal);
 
         // updateTokenBalances();
         // This doesn't seem to work because we're still at page load? Contract object or sth like that maybe doesn't exist yet?
@@ -263,6 +287,7 @@ const TokenManager = ({ contractAddress }: TokenBridge) => {
         setTokenSymbolsList(previousTokenSymbolsList);
         setTokenBalancesList(previousTokenBalancesList);
         setTokenAllowancesList(previousTokenAllowancesList);
+        setTokenLocksList(previousTokenLocksList);
 
         setInformUser(0, "");
     }
@@ -331,14 +356,29 @@ const TokenManager = ({ contractAddress }: TokenBridge) => {
         return tokenAllowance;
     };
 
+    const updateTokenLocks = async () => {
+        setInformUser(1, "Fetching new token locked numbers.");
+        const newTokenLocks = JSON.parse(JSON.stringify(tokenLocksList)); // this will copy everything from original 
+
+        for (var j = 0; j < tokensList.length; j++) {
+            const newLockedTokensValue = await tokenBridgeContract.lockedTokens(tokensList[j], account);
+            console.log(newLockedTokensValue);
+
+            if (newLockedTokensValue != null)
+                newTokenLocks[j] = newLockedTokensValue.toString();
+        }
+
+        setTokenLocksList(newTokenLocks);
+        localStorage.setItem(tokenLocksStorageKey, JSON.stringify(newTokenLocks));
+        setInformUser(0, "Token locked values updates successfully.");
+    }
+
     const updateTokenInfo = async () => {
         await updateTokenBalances();
         await updateTokenAllowances();
+        await updateTokenLocks();
 
-        // const lockedTokens = await tokenBridgeContract.lockedTokens("0xD332B8CC2b5E7eB87f85FD86526244f4d576a978", "0x7e5af6AE88f20a3DaDd8BFd25f513AFFf842C2a2");
-        // console.log(lockedTokens);
-
-        setInformUser(0, "Token balances and allowances updated successfully.");
+        setInformUser(0, "Token balances, allowances, and locked values updated successfully.");
     }
 
     const allowanceAmountChanged = (input) => {
@@ -411,6 +451,7 @@ const TokenManager = ({ contractAddress }: TokenBridge) => {
                             <th scope="col">Symbol</th>
                             <th scope="col">Balance</th>
                             <th scope="col">Allowance</th>
+                            <th scope="col">Locked</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -430,6 +471,7 @@ const TokenManager = ({ contractAddress }: TokenBridge) => {
                                 <td>{tokenSymbolsList[index]}</td>
                                 <td>{tokenBalancesList[index]}</td>
                                 <td>{tokenAllowancesList[index]}</td>
+                                <td>{tokenLocksList[index]}</td>
                             </tr>
                         ))}
                     </tbody>
