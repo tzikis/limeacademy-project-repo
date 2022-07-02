@@ -8,6 +8,8 @@ import Select from 'react-select';
 
 import { splitSignature } from "@ethersproject/bytes";
 
+import { shortenHex } from "../util";
+
 type TokenBridge = {
   contractAddress: string;
 };
@@ -380,11 +382,50 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
                 <th scope="row">{index}</th>
                 <td>{TOKEN_BRIDGE_ADDRESSES[element["chainId"]]["network"] + " (#" + element["chainId"] + ")"}</td>
                 <td>{element["event"]}</td>
-                <td>{element["tokenNativeAddress"]}</td>
+                {/* `${shortenHex(account, 4)}` */}
+                <td>
+                  {shortenHex(element["tokenNativeAddress"], 6)}
+                  <button className="btn btn-link btn-sm"
+                    onClick={() => { navigator.clipboard.writeText(element["tokenNativeAddress"] + "") }}
+                    style={{ marginBottom: "4px" }}>
+                    <i className="bi bi-clipboard"></i>
+                  </button>
+                </td>
                 <td>{element["amount"]}</td>
                 <td>{element["nonce"]}</td>
-                <td>{element["wrappedTokenAddress"]}</td>
-                <td style={{ maxWidth: "100px", overflow: "hidden" }}>{element["signature"]}</td>
+                <td>
+                  {
+                    element["wrappedTokenAddress"] ?
+                      <>
+                        {shortenHex(element["wrappedTokenAddress"], 6)}
+                        <button className="btn btn-link btn-sm"
+                          onClick={() => { navigator.clipboard.writeText(element["wrappedTokenAddress"] + "") }}
+                          style={{ marginBottom: "4px" }}>
+                          <i className="bi bi-clipboard"></i>
+                        </button>
+                      </>
+                      :
+                      ""
+                  }
+                </td>
+                <td>
+                  {
+                    element["signature"] ?
+                      <>
+                        {shortenHex(element["signature"], 4)}
+                        <button className="btn btn-link btn-sm"
+                          onClick={() => { navigator.clipboard.writeText(element["signature"] + "") }}
+                          style={{ marginBottom: "4px" }}>
+                          <i className="bi bi-clipboard"></i>
+                        </button>
+                      </>
+                      :
+                      ""
+                  }
+                </td>
+                {/* <td>
+                  {element["signature"]}
+                </td> */}
               </tr>
             ))}
           </tbody>
