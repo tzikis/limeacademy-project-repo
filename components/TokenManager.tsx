@@ -325,6 +325,12 @@ const TokenManager = () => {
         return tokenAllowance;
     };
 
+    const updateTokenInfo = async () => {
+        await updateTokenBalances();
+        await updateTokenAllowances();
+        setInformUser(0, "Token balances and allowances updated successfully.");
+    }
+
     const allowanceAmountChanged = (input) => {
         setAllowanceAmount(input.target.value)
     }
@@ -413,7 +419,7 @@ const TokenManager = () => {
                 :
                 <p>You don't seem to have any tokens. You can add some using the form bellow.</p>
             }
-            <div style={{ margin: "10px" }}>
+            {/* <div style={{ margin: "10px" }}>
                 <div className="row align-items-center d-flex justify-content-center">
                     <div className="col-auto">
                         <button className="btn btn-secondary" onClick={updateTokenBalances} disabled={tokenManagerStatus ? true : false}>Update Balances</button>
@@ -421,7 +427,7 @@ const TokenManager = () => {
                         <button className="btn btn-secondary" onClick={updateTokenAllowances} disabled={tokenManagerStatus ? true : false}>Update Allowances</button>
                     </div>
                 </div>
-            </div>
+            </div> */}
             <div style={{ margin: "10px" }}>
                 <div className="row gy-2 gx-3 align-items-center d-flex justify-content-center">
                     <label className="col-auto">Token Address:</label>
@@ -447,6 +453,9 @@ const TokenManager = () => {
                     </div>
                     <div className="col-auto">
                         <button type="submit" className="btn btn-primary" onClick={changeAllowance} disabled={tokenManagerStatus ? true : false}>Set Allowance</button>
+                    </div>
+                    <div className="col-auto">
+                        <button className="btn btn-secondary" onClick={updateTokenInfo} disabled={tokenManagerStatus ? true : false}>Update Token Info</button>
                     </div>
                 </div>
             </div>
