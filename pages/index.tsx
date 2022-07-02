@@ -30,7 +30,7 @@ function Home() {
       <header>
         <nav className="navbar navbar-light bg-light" style={{padding:".5rem"}}>
           <a className="navbar-brand" href="#">
-            <img src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" width="30" height="30" className="d-inline-block align-top" alt="logo" />
+            <img src="/LimeTzikis Logo.png" width="30" height="30" className="d-inline-block align-top" alt="logo" />
             {" "}Tzikis Token Bridge
           </a>
           <Account triedToEagerConnect={triedToEagerConnect} />
