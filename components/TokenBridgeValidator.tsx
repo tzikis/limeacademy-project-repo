@@ -7,6 +7,8 @@ import { splitSignature } from "@ethersproject/bytes";
 
 import { TOKEN_BRIDGE_ADDRESSES } from "../constants";
 
+import { shortenHex } from "../util";
+
 type TokenBridge = {
   contractAddress: string;
 };
@@ -388,14 +390,14 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Target Chain</th>
-                <th scope="col">Transaction Type</th>
-                <th scope="col">Transaction Function Name</th>
+                <th scope="col">Tx Type</th>
+                <th scope="col">Tx Function Name</th>
                 <th scope="col">Native Token Address</th>
-                <th scope="col">Token Owner/Receiver Address</th>
+                <th scope="col">Owner/Receiver Address</th>
                 <th scope="col">Amount</th>
                 <th scope="col">Nonce</th>
                 <th scope="col">Wrapped Token Address</th>
-                <th scope="col">Signature</th>
+                <th scope="col">Tx Validation Signature</th>
               </tr>
             </thead>
             <tbody>
@@ -405,12 +407,54 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
                   <td>{TOKEN_BRIDGE_ADDRESSES[element["chainId"]]["network"] + " (#" + element["chainId"] + ")"}</td>
                   <td>{element["event"]}</td>
                   <td>{element["functionName"]}</td>
-                  <td>{element["tokenNativeAddress"]}</td>
-                  <td>{element["receiverOrOwnerAddress"]}</td>
+                  <td>
+                    {shortenHex(element["tokenNativeAddress"], 4)}
+                    <button className="btn btn-link btn-sm"
+                      onClick={() => { navigator.clipboard.writeText(element["tokenNativeAddress"] + "") }}
+                      style={{ marginBottom: "4px" }}>
+                      <i className="bi bi-clipboard"></i>
+                    </button>
+                  </td>
+                  <td>
+                    {shortenHex(element["receiverOrOwnerAddress"], 4)}
+                    <button className="btn btn-link btn-sm"
+                      onClick={() => { navigator.clipboard.writeText(element["receiverOrOwnerAddress"] + "") }}
+                      style={{ marginBottom: "4px" }}>
+                      <i className="bi bi-clipboard"></i>
+                    </button>
+                  </td>
                   <td>{element["amount"]}</td>
                   <td>{element["nonce"]}</td>
-                  <td>{element["wrappedTokenAddress"]}</td>
-                  <td style={{ maxWidth: "100px", overflow: "hidden" }}>{element["signature"]}</td>
+                  <td>
+                    {
+                      element["wrappedTokenAddress"] ?
+                        <>
+                          {shortenHex(element["wrappedTokenAddress"], 4)}
+                          <button className="btn btn-link btn-sm"
+                            onClick={() => { navigator.clipboard.writeText(element["wrappedTokenAddress"] + "") }}
+                            style={{ marginBottom: "4px" }}>
+                            <i className="bi bi-clipboard"></i>
+                          </button>
+                        </>
+                        :
+                        ""
+                    }
+                  </td>
+                  <td>
+                    {
+                      element["signature"] ?
+                        <>
+                          {shortenHex(element["signature"], 4)}
+                          <button className="btn btn-link btn-sm"
+                            onClick={() => { navigator.clipboard.writeText(element["signature"] + "") }}
+                            style={{ marginBottom: "4px" }}>
+                            <i className="bi bi-clipboard"></i>
+                          </button>
+                        </>
+                        :
+                        ""
+                    }
+                  </td>
                 </tr>
               ))}
             </tbody>
