@@ -28,6 +28,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
 
   const [receiverAddress, setReceiverAddress] = useState<string>('');
   const [validationSignature, setValidationSignature] = useState<string>('');
+  const [validationSplitSignature, setValidationSplitSignature] = useState<Object>({});
   const [validationVerificationResponse, setValidationVerificationResponse] = useState<string>('');
 
   const [eventsHistoryState, setEventsHistoryState] = useState<Object[]>([]);
@@ -180,16 +181,22 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
     setReceiverAddress(input.target.value)
   }
 
+  const setValidationSignatures = async (valSig) => {
+    setValidationSignature(valSig);
+    const splitValSig = await splitSignature(valSig);
+    setValidationSplitSignature(splitValSig);
+  }
+
   const generateLockValidation = async () => {
     const valSig = await generateValidation("lock()", targetChainId, tokenContractAddress, receiverAddress, tokenAmount, nonce);
     updateHistory(targetChainId, "lock()", tokenContractAddress, receiverAddress, tokenAmount, nonce, valSig)
-    setValidationSignature(valSig);
+    setValidationSignatures(valSig);
   }
 
   const generateBurnValidation = async () => {
     const valSig = await generateValidation("burn()", targetChainId, tokenContractAddress, receiverAddress, tokenAmount, nonce);
     updateHistory(targetChainId, "burn()", tokenContractAddress, receiverAddress, tokenAmount, nonce, valSig)
-    setValidationSignature(valSig);
+    setValidationSignatures(valSig);
   }
 
   const testLockValidation = async () => {
@@ -201,7 +208,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
       const response = await tokenBridgeContract.verify("lock()", targetChainId, tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
       // setWarningMessage("Unlocking from Token Bridge Contract was successful.");
       // setTransactionPending(2);
-      setValidationSignature(valSig);
+      setValidationSignatures(valSig);
       setValidationVerificationResponse(response.toString())
     }
     catch (error) {
@@ -221,7 +228,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
       const response = await tokenBridgeContract.verify("burn()", targetChainId, tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
       // setWarningMessage("Unlocking from Token Bridge Contract was successful.");
       // setTransactionPending(2);
-      setValidationSignature(valSig);
+      setValidationSignatures(valSig);
       setValidationVerificationResponse(response.toString())
     }
     catch (error) {
@@ -386,6 +393,8 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
         </div>
         <p>Validation Signature:</p>
         <p>{validationSignature}</p>
+        <p>Split Validation Signature:</p>
+        <p>v: {validationSplitSignature? validationSplitSignature["v"]: ""} r: {validationSplitSignature? validationSplitSignature["r"]: ""} s: {validationSplitSignature? validationSplitSignature["s"]: ""}</p>
         <p>Verification Response (Address):</p>
         <p>{validationVerificationResponse}</p>
         {eventsHistoryState.length > 0 ?
