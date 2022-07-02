@@ -411,7 +411,7 @@ const TokenManager = () => {
                                     {element}
                                     {" "}
                                     <button className="btn btn-link btn-sm"
-                                    onClick={() => { navigator.clipboard.writeText(element) }}
+                                    onClick={() => { navigator.clipboard.writeText(element+"") }}
                                     style={{marginBottom:"4px"}}>
                                         <i className="bi bi-clipboard"></i>
                                     </button>
