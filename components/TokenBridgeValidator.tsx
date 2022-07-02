@@ -391,6 +391,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
                 <th scope="col">Transaction Type</th>
                 <th scope="col">Transaction Function Name</th>
                 <th scope="col">Native Token Address</th>
+                <th scope="col">Token Owner/Receiver Address</th>
                 <th scope="col">Amount</th>
                 <th scope="col">Nonce</th>
                 <th scope="col">Wrapped Token Address</th>
@@ -405,6 +406,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
                   <td>{element["event"]}</td>
                   <td>{element["functionName"]}</td>
                   <td>{element["tokenNativeAddress"]}</td>
+                  <td>{element["receiverOrOwnerAddress"]}</td>
                   <td>{element["amount"]}</td>
                   <td>{element["nonce"]}</td>
                   <td>{element["wrappedTokenAddress"]}</td>
