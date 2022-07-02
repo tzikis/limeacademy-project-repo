@@ -107,7 +107,11 @@ const Account = ({ triedToEagerConnect }: AccountProps) => {
       }}
     >
       {ENSName || account}
-    </a> - Balance: {" "}
+    </a>{" "}
+    <button className="btn btn-outline-info badge text-dark" onClick={() => {navigator.clipboard.writeText(ENSName || account)}}>
+      <i className="bi bi-clipboard"></i>
+    </button>
+    {" "} - Balance: {" "}
     <NativeCurrencyBalance />
     </span>
     <button
