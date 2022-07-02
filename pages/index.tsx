@@ -45,7 +45,7 @@ function Home() {
         {isConnected && (
           <section>
             <div className="container">
-              <TokenManager />
+              <TokenManager contractAddress={TOKEN_BRIDGE_ADDRESSES[chainId]["address"]} />
               <TokenBridgeComponent contractAddress={TOKEN_BRIDGE_ADDRESSES[chainId]["address"]} />
               <TokenBridgeValidatorComponent contractAddress={TOKEN_BRIDGE_ADDRESSES[chainId]["address"]} />
             </div>

@@ -2,6 +2,7 @@ import { useWeb3React } from "@web3-react/core";
 import type { Web3Provider } from "@ethersproject/providers";
 
 import { TOKEN_BRIDGE_ADDRESSES } from "../constants";
+import useTokenBridgeContract from "../hooks/useTokenBridgeContract";
 import { useEffect, useState } from "react";
 
 import { isAddress } from "@ethersproject/address";
@@ -15,8 +16,13 @@ var tokenSymbolsStorageKey;
 var tokenBalancesStorageKey;
 var tokenAllowancesStorageKey;
 
-const TokenManager = () => {
+type TokenBridge = {
+    contractAddress: string;
+  };
+  
+const TokenManager = ({ contractAddress }: TokenBridge) => {
     const { account, library, chainId } = useWeb3React<Web3Provider>();
+    const tokenBridgeContract = useTokenBridgeContract(contractAddress);
 
     const [tokensList, setTokensList] = useState<String[]>([]);
     const [tokenNamesList, setTokenNamesList] = useState<String[]>([]);
@@ -328,6 +334,10 @@ const TokenManager = () => {
     const updateTokenInfo = async () => {
         await updateTokenBalances();
         await updateTokenAllowances();
+
+        // const lockedTokens = await tokenBridgeContract.lockedTokens("0xD332B8CC2b5E7eB87f85FD86526244f4d576a978", "0x7e5af6AE88f20a3DaDd8BFd25f513AFFf842C2a2");
+        // console.log(lockedTokens);
+
         setInformUser(0, "Token balances and allowances updated successfully.");
     }
 
