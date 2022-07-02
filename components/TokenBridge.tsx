@@ -29,13 +29,11 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const [targetChainId, setTargetChainId] = useState<string>('');
   const [chainIdOptions, setChainIdOptions] = useState<Object[]>([]);
 
-  const [lockNonce, setLockNonce] = useState<string>('');
-  const [lockValidationSignature, setLockValidationSignature] = useState<string>('');
   const [mintTokenName, setMintTokenName] = useState<string>('');
   const [mintTokenSymbol, setMintTokenSymbol] = useState<string>('');
 
-  const [burnNonce, setBurnNonce] = useState<string>('');
-  const [burnValidationSignature, setBurnValidationSignature] = useState<string>('');
+  const [nonce, setNonce] = useState<string>('');
+  const [validationSignature, setValidationSignature] = useState<string>('');
 
   const [eventsListState, setEventsListState] = useState<Object[]>([]);
 
@@ -132,7 +130,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const addEventToList = (newEvent) => {
 
     // We shouldn't be doing this either, but at this point i think we subscribe and get events for each wallet we have ever used in this session
-    if(newEvent.receiverOrOwnerAddress != account)
+    if (newEvent.receiverOrOwnerAddress != account)
       return;
 
     // We really shouldn't be doing this, but the event handlers are called twice when they shouldn't. sigh..
@@ -184,14 +182,6 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     setTargetChainId(input.value)
   }
 
-  const lockNonceChanged = (input) => {
-    setLockNonce(input.target.value)
-  }
-
-  const lockValidationSignatureChanged = (input) => {
-    setLockValidationSignature(input.target.value)
-  }
-
   const mintTokenNameChanged = (input) => {
     setMintTokenName(input.target.value)
   }
@@ -200,12 +190,12 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
     setMintTokenSymbol(input.target.value)
   }
 
-  const burnNonceChanged = (input) => {
-    setBurnNonce(input.target.value)
+  const nonceChanged = (input) => {
+    setNonce(input.target.value)
   }
 
-  const burnValidationSignatureChanged = (input) => {
-    setBurnValidationSignature(input.target.value)
+  const validationSignatureChanged = (input) => {
+    setValidationSignature(input.target.value)
   }
 
   const submitLockTokens = async () => {
@@ -232,10 +222,10 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   const submitUnlockTokens = async () => {
 
     try {
-      // const signatureLike = await generateValidation("burn()", tokenContractAddress, account, tokenAmount, burnNonce);
+      // const signatureLike = await generateValidation("burn()", tokenContractAddress, account, tokenAmount, nonce);
       // const signature = await splitSignature(signatureLike);
-      const signature = await splitSignature(burnValidationSignature);
-      const tx = await tokenBridgeContract.unlock(chainId, tokenContractAddress, account, tokenAmount, burnNonce, signature.v, signature.r, signature.s);
+      const signature = await splitSignature(validationSignature);
+      const tx = await tokenBridgeContract.unlock(chainId, tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
 
       setTxHash(tx.hash);
       setTransactionPending(1);
@@ -257,10 +247,10 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
       const wrappedTokenInfo = { name: mintTokenName, symbol: mintTokenSymbol };
       // const wrappedTokenInfo = ["Hello World", "yay"];
-      // const signatureLike = await generateValidation("lock()", tokenContractAddress, account, tokenAmount, lockNonce);
+      // const signatureLike = await generateValidation("lock()", tokenContractAddress, account, tokenAmount, nonce);
       // const signature = await splitSignature(signatureLike);
-      const signature = await splitSignature(lockValidationSignature);
-      const tx = await tokenBridgeContract.mint(chainId, tokenContractAddress, account, tokenAmount, lockNonce, wrappedTokenInfo, signature.v, signature.r, signature.s);
+      const signature = await splitSignature(validationSignature);
+      const tx = await tokenBridgeContract.mint(chainId, tokenContractAddress, account, tokenAmount, nonce, wrappedTokenInfo, signature.v, signature.r, signature.s);
 
       setTxHash(tx.hash);
       setTransactionPending(1);
@@ -299,60 +289,62 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
   return (
     <div className="results-form">
       <h2>Token Bridge</h2>
-      <h3>Common</h3>
-      <label>
-        Token Address:
-        <input onChange={tokenContractAddressChanged} value={tokenContractAddress} type="text" name="token_contract_address" />
-        &nbsp;Amount:
-        <input onChange={tokenAmountChanged} value={tokenAmount} type="number" name="token_amount" />
-      </label>
-      <div className="chain Id">
-      </div>
-      <h3>Native</h3>
-      <div className="button-wrapper">
-        <label>
-          Chain ID:
-        </label>
-        &nbsp;
-        <div style={{ width: 300, display: "inline-block" }}>
-          <Select placeholder="Please select target network" value={targetChainId == null ? null : chainIdOptions} onChange={targetChainChanged} options={chainIdOptions} />
+      <div style={{ margin: "10px" }}>
+        <div className="row gy-2 gx-3 align-items-center d-flex justify-content-center">
+          <label className="col-auto">Token Address:</label>
+          <div className="col-auto">
+            <input type="text" className="form-control" placeholder="Token Address"
+              onChange={tokenContractAddressChanged} value={tokenContractAddress} name="token_contract_address"
+            />
+          </div>
+          <label className="col-auto">Amount:</label>
+          <div className="col-auto">
+            <input type="number" className="form-control" style={{ width: 100 }} placeholder="0"
+              onChange={tokenAmountChanged} value={tokenAmount} name="token_amount"
+            />
+          </div>
         </div>
-        &nbsp;
-        <button onClick={submitLockTokens}>Lock Tokens</button> &nbsp;
       </div>
-      <div className="button-wrapper">
-        <label>
-          Burn Nonce:
-          <input onChange={burnNonceChanged} value={burnNonce} type="text" name="validator_nonce" />
-          &nbsp; Burn Signature:
-          <input onChange={burnValidationSignatureChanged} value={burnValidationSignature} type="text" name="lock_token_contract_address" />
-        </label>
-        <button onClick={submitUnlockTokens}>Unlock Tokens</button>
-      </div>
-      <h3>Non-Native</h3>
-      <div className="button-wrapper">
-        <label>
-          Lock Nonce:
-          <input onChange={lockNonceChanged} value={lockNonce} type="text" name="validator_nonce2" />
-          &nbsp; Lock Signature:
-          <input onChange={lockValidationSignatureChanged} value={lockValidationSignature} type="text" name="lock_token_contract_address" />
-          &nbsp; Mint Token Name:
-          <input onChange={mintTokenNameChanged} value={mintTokenName} type="text" name="mint_token_name" />
-          &nbsp; Mint Token Symbol:
-          <input onChange={mintTokenSymbolChanged} value={mintTokenSymbol} type="text" name="mint_token_symbol" />
-        </label>
-        <button onClick={submitMintTokens}>Mint Tokens</button>
-      </div>
-      <div className="button-wrapper">
-        <label>
-          Chain ID:
-        </label>
-        &nbsp;
-        <div style={{ width: 300, display: "inline-block" }}>
-          <Select placeholder="Please select target network" value={targetChainId == null ? null : chainIdOptions} onChange={targetChainChanged} options={chainIdOptions} />
+      <div style={{ margin: "10px" }}>
+        <div className="row gy-2 gx-3 align-items-center d-flex justify-content-center">
+          <label className="col-auto">Chain ID:</label>
+          <div className="col-auto" style={{ width: 200 }}>
+            {/* <div style={{ width: 300, display: "inline-block" }}> */}
+            <Select placeholder="Target Network" value={targetChainId == null ? null : chainIdOptions} onChange={targetChainChanged} options={chainIdOptions} />
+          </div>
+          <div className="col-auto">
+            <button type="button" className="btn btn-primary" onClick={submitLockTokens}>Lock Tokens</button>
+          </div>
+          <div className="col-auto">
+            <button type="button" className="btn btn-primary" onClick={submitBurnTokens}>Burn Tokens</button>
+          </div>
         </div>
-        &nbsp;
-        <button onClick={submitBurnTokens}>Burn Tokens</button>
+      </div>
+      <div style={{ margin: "10px" }}>
+        <div className="row gy-2 gx-3 align-items-center d-flex justify-content-center">
+          <div className="col-auto">
+            <div className="input-group">
+              <div className="input-group-text">Nonce</div>
+              <input type="number" className="form-control" style={{ width: 100 }} placeholder="0"
+                onChange={nonceChanged} value={nonce} name="nonce_input"
+              />
+              <div className="input-group-text">Signature</div>
+              <input type="text" className="form-control" placeholder="Signature"
+                onChange={validationSignatureChanged} value={validationSignature} name="signature_input"
+              />
+              <button type="button" className="btn btn-primary" onClick={submitUnlockTokens}>Unlock Tokens</button>
+              <div className="input-group-text">Token Name</div>
+              <input type="text" className="form-control" placeholder="Name"
+                onChange={mintTokenNameChanged} value={mintTokenName} name="mint_token_name"
+              />
+              <div className="input-group-text">Token Symbol</div>
+              <input type="text" className="form-control" placeholder="Symbol"
+                onChange={mintTokenSymbolChanged} value={mintTokenSymbol} name="mint_token_symbol"
+              />
+              <button type="button" className="btn btn-primary" onClick={submitMintTokens}>Mint Tokens</button>
+            </div>
+          </div>
+        </div>
       </div>
       <p>{warningMessage}</p>
       <div className="loading-component" hidden={transactionPending == 0}>
@@ -367,6 +359,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
           <p>Results successfuly submitted.</p>
         </div>
       </div>
+      <h3>Event History</h3>
       {eventsListState.length > 0 ?
         <table className="table">
           <thead>
@@ -397,7 +390,7 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
           </tbody>
         </table>
         :
-        <></>
+        <p>You don't have any events in your history log.</p>
       }
       <style jsx>{`
         .results-form {
