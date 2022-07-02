@@ -337,15 +337,15 @@ const TokenManager = () => {
 
     const changeAllowance = async () => {
 
-        if(allowanceAmount == ""){
+        if (allowanceAmount == "") {
             setInformUser(0, "Please specify an amount to approve.");
             return null;
-        } 
+        }
 
-        if(tokenAddress == ""){
+        if (tokenAddress == "") {
             setInformUser(0, "Please specify a token address.");
             return null;
-        } 
+        }
 
         if (!isAddress(tokenAddress)) {
             setInformUser(0, "Sorry, this is not a valid contract address.");
