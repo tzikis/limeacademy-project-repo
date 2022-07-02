@@ -131,6 +131,10 @@ const TokenBridgeComponent = ({ contractAddress }: TokenBridge) => {
 
   const addEventToList = (newEvent) => {
 
+    // We shouldn't be doing this either, but at this point i think we subscribe and get events for each wallet we have ever used in this session
+    if(newEvent.receiverOrOwnerAddress != account)
+      return;
+
     // We really shouldn't be doing this, but the event handlers are called twice when they shouldn't. sigh..
     for (var j = 0; j < eventsList.length; j++) {
       if (
