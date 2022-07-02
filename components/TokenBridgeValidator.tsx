@@ -327,7 +327,11 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
   return (
     <div className="results-form">
       <div hidden={account != contractOwner}>
-        <h2>Validator</h2>
+        <br />
+        <br />
+        <hr />
+        <br />
+        <h1>Validator</h1>
         <div style={{ margin: "10px" }}>
           <div className="row gy-2 gx-3 align-items-center d-flex justify-content-center">
             <label className="col-auto">Target Chain ID:</label>
