@@ -28,7 +28,7 @@ function Home() {
       </Head>
 
       <header>
-        <nav className="navbar navbar-light bg-light" style={{padding:".5rem"}}>
+        <nav className="navbar navbar-light bg-light" style={{ padding: ".5rem" }}>
           <a className="navbar-brand" href="#">
             <img src="/LimeTzikis Logo.png" width="30" height="30" className="d-inline-block align-top" alt="logo" />
             {" "}Tzikis Token Bridge
@@ -38,19 +38,28 @@ function Home() {
       </header>
 
       <main>
-        <h1>
-          Welcome to Tzikis Token Bridge
-        </h1>
-
-        {isConnected && (
-          <section>
-            <div className="container">
+        <div className="container">
+          <br />
+          <br />
+          <br />
+          <h1>
+            Welcome to Tzikis Token Bridge
+          </h1>
+          {isConnected && (
+            <section>
               <TokenManager contractAddress={TOKEN_BRIDGE_ADDRESSES[chainId]["address"]} />
               <TokenBridgeComponent contractAddress={TOKEN_BRIDGE_ADDRESSES[chainId]["address"]} />
               <TokenBridgeValidatorComponent contractAddress={TOKEN_BRIDGE_ADDRESSES[chainId]["address"]} />
-            </div>
-          </section>
-        )}
+            </section>
+          )}
+          {!isConnected &&
+            <section>
+              <br />
+              <br />
+              <img src="https://cache.desktopnexus.com/thumbseg/1386/1386854-bigthumbnail.jpg" />
+            </section>
+          }
+        </div>
       </main>
 
       <style jsx>{`
