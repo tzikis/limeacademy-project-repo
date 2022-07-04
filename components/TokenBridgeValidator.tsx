@@ -205,7 +205,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
       const signature = await splitSignature(valSig);
       // setTransactionPending(1);
       // setWarningMessage("Unlocking token in Token Bridge Contract.");
-      const response = await tokenBridgeContract.verify("lock()", targetChainId, tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
+      const response = await tokenBridgeContract.verify("lock()", targetChainId, tokenContractAddress, receiverAddress, tokenAmount, nonce, signature.v, signature.r, signature.s);
       // setWarningMessage("Unlocking from Token Bridge Contract was successful.");
       // setTransactionPending(2);
       setValidationSignatures(valSig);
@@ -225,7 +225,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
       const signature = await splitSignature(valSig);
       // setTransactionPending(1);
       // setWarningMessage("Unlocking token in Token Bridge Contract.");
-      const response = await tokenBridgeContract.verify("burn()", targetChainId, tokenContractAddress, account, tokenAmount, nonce, signature.v, signature.r, signature.s);
+      const response = await tokenBridgeContract.verify("burn()", targetChainId, tokenContractAddress, receiverAddress, tokenAmount, nonce, signature.v, signature.r, signature.s);
       // setWarningMessage("Unlocking from Token Bridge Contract was successful.");
       // setTransactionPending(2);
       setValidationSignatures(valSig);
