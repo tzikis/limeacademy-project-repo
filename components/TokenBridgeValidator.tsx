@@ -241,11 +241,6 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
 
   const updateHistory = (eventTargetChainId, functionName, tokenContractAddress, receiverAccount, tokenAmount, nonce, signature) => {
     for (var j = 0; j < eventsHistory.length; j++) {
-      const eventFunctionName = eventsHistory[j].functionName;
-      const eventTokenContractAddress = eventsHistory[j].tokenNativeAddress;
-      const eventReceiverAccount = eventsHistory[j].receiverOrOwnerAddress;
-      const eventTokenAmount = eventsHistory[j].amount;
-      const eventNonce = eventsHistory[j].nonce;
 
       // console.log(j + " " + eventFunctionName + " " + eventTokenContractAddress + " " + eventReceiverAccount + " " + eventTokenAmount + " " + eventNonce + " wtf");
       // console.log(j + " " + functionName + " " + tokenContractAddress + " " + receiverAccount + " " + tokenAmount + " " + nonce + " wtf");
@@ -257,6 +252,7 @@ const TokenBridgeValidatorComponent = ({ contractAddress }: TokenBridge) => {
         receiverAccount == eventsHistory[j].receiverOrOwnerAddress &&
         tokenAmount == eventsHistory[j].amount &&
         nonce == eventsHistory[j].nonce
+        // && eventsHistory[j] == null
       ) {
         eventsHistory[j].signature = signature;
         localStorage.setItem('eventsHistory', JSON.stringify(eventsHistory));
